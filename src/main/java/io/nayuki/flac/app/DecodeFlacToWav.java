@@ -24,8 +24,8 @@ package io.nayuki.flac.app;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 import io.nayuki.flac.common.StreamInfo;
@@ -90,7 +90,7 @@ public final class DecodeFlacToWav {
         // Start writing WAV output file
         int bytesPerSample = streamInfo.sampleDepth / 8;
         try (DataOutputStream out = new DataOutputStream(
-                new BufferedOutputStream(new FileOutputStream(outFile)))) {
+                new BufferedOutputStream(Files.newOutputStream(outFile.toPath())))) {
             DecodeFlacToWav.out = out;
 
             // Header chunk
@@ -113,8 +113,8 @@ public final class DecodeFlacToWav {
             out.writeInt(0x64617461);  // "data"
             writeLittleInt32(sampleDataLen);
             for (int i = 0; i < samples[0].length; i++) {
-                for (int j = 0; j < samples.length; j++) {
-                    int val = samples[j][i];
+                for (int[] sample : samples) {
+                    int val = sample[i];
                     if (bytesPerSample == 1)
                         out.write(val + 128);  // Convert to unsigned, as per WAV PCM conventions
                     else {  // 2 <= bytesPerSample <= 4

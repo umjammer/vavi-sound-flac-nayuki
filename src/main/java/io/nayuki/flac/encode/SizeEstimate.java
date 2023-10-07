@@ -27,7 +27,7 @@ import java.util.Objects;
 /*
  * Pairs an integer with an arbitrary object. Immutable structure.
  */
-final class SizeEstimate<E> {
+public final class SizeEstimate<E> {
 
     /*---- Fields ----*/
 

@@ -46,7 +46,7 @@ public final class StreamInfo {
     /*---- Fields about block and frame sizes ----*/
 
     /**
-     * Minimum block size (in samples per channel) among the whole stream, a uint16 value.
+     * Minimum block size (in samples per channel) among the whole stream, an uint16 value.
      * However when minBlockSize = maxBlockSize (constant block size encoding style),
      * the final block is allowed to be smaller than minBlockSize.
      */
@@ -301,8 +301,8 @@ public final class StreamInfo {
         int numBytes = depth / 8;
         byte[] buf = new byte[numChannels * numBytes * Math.min(numSamples, 2048)];
         for (int i = 0, l = 0; i < numSamples; i++) {
-            for (int j = 0; j < numChannels; j++) {
-                int val = samples[j][i];
+            for (int[] sample : samples) {
+                int val = sample[i];
                 for (int k = 0; k < numBytes; k++, l++)
                     buf[l] = (byte) (val >>> (k << 3));
             }

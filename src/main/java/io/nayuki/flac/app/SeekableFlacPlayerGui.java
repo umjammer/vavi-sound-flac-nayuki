@@ -82,9 +82,10 @@ public final class SeekableFlacPlayerGui {
         line.start();
 
         // Create GUI object, event handler, communication object
-        final double[] seekRequest = {-1};
+        double[] seekRequest = {-1};
         AudioPlayerGui gui = new AudioPlayerGui("FLAC Player");
         gui.listener = new AudioPlayerGui.Listener() {
+            @Override
             public void seekRequested(double t) {
                 synchronized (seekRequest) {
                     seekRequest[0] = t;
@@ -92,6 +93,7 @@ public final class SeekableFlacPlayerGui {
                 }
             }
 
+            @Override
             public void windowClosing() {
                 System.exit(0);
             }
@@ -175,16 +177,19 @@ public final class SeekableFlacPlayerGui {
             slider.setUI(sliderUi);
             slider.setPreferredSize(new Dimension(800, 50));
             slider.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent ev) {
                     moveSlider(ev);
                 }
 
+                @Override
                 public void mouseReleased(MouseEvent ev) {
                     moveSlider(ev);
                     listener.seekRequested((double) slider.getValue() / slider.getMaximum());
                 }
             });
             slider.addMouseMotionListener(new MouseMotionAdapter() {
+                @Override
                 public void mouseDragged(MouseEvent ev) {
                     moveSlider(ev);
                 }
@@ -195,6 +200,7 @@ public final class SeekableFlacPlayerGui {
             frame.add(slider);
             frame.pack();
             frame.addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent ev) {
                     listener.windowClosing();
                 }
@@ -209,12 +215,10 @@ public final class SeekableFlacPlayerGui {
         public void setPosition(double t) {
             if (Double.isNaN(t))
                 return;
-            final double val = Math.max(Math.min(t, 1), 0);
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    if (!slider.getValueIsAdjusting())
-                        slider.setValue((int) Math.round(val * slider.getMaximum()));
-                }
+            double val = Math.max(Math.min(t, 1), 0);
+            SwingUtilities.invokeLater(() -> {
+                if (!slider.getValueIsAdjusting())
+                    slider.setValue((int) Math.round(val * slider.getMaximum()));
             });
         }
 
@@ -228,9 +232,9 @@ public final class SeekableFlacPlayerGui {
 
         public interface Listener {
 
-            public void seekRequested(double t);  // 0.0 <= t <= 1.0
+            void seekRequested(double t);  // 0.0 <= t <= 1.0
 
-            public void windowClosing();
+            void windowClosing();
 
         }
 

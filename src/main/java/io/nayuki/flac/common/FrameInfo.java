@@ -401,7 +401,7 @@ public final class FrameInfo {
 
     /*---- Tables of constants and search functions ----*/
 
-    private static final int searchFirst(int[][] table, int key) {
+    private static int searchFirst(int[][] table, int key) {
         for (int[] pair : table) {
             if (pair[0] == key)
                 return pair[1];
@@ -410,7 +410,7 @@ public final class FrameInfo {
     }
 
 
-    private static final int searchSecond(int[][] table, int key) {
+    private static int searchSecond(int[][] table, int key) {
         for (int[] pair : table) {
             if (pair[1] == key)
                 return pair[0];

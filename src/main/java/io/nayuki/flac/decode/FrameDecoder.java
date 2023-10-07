@@ -332,7 +332,7 @@ public final class FrameDecoder {
             throw new IllegalArgumentException();
         if (shift < 0 || shift > 63)
             throw new IllegalArgumentException();
-        long lowerBound = (-1) << (sampleDepth - 1);
+        long lowerBound = (long) (-1) << (sampleDepth - 1);
         long upperBound = -(lowerBound + 1);
 
         for (int i = coefs.length; i < currentBlockSize; i++) {

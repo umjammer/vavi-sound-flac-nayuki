@@ -34,7 +34,7 @@ final class RiceEncoder {
 
     // Calculates the best number of bits and partition order needed to encode the values data[warmup : data.length].
     // Each value in that subrange of data must fit in a signed 53-bit integer. The result is packed in the form
-    // ((bestSize << 4) | bestOrder), where bestSize is an unsigned integer and bestOrder is a uint4.
+    // ((bestSize << 4) | bestOrder), where bestSize is an unsigned integer and bestOrder is an uint4.
     // Note that the partition orders searched, and hence the resulting bestOrder, are in the range [0, maxPartOrder].
     public static long computeBestSizeAndOrder(long[] data, int warmup, int maxPartOrder) {
         // Check arguments strictly
@@ -69,7 +69,7 @@ final class RiceEncoder {
                     escapeBits[j] = Math.max(65 - Long.numberOfLeadingZeros(val ^ (val >> 63)), escapeBits[j]);
                     val = (val >= 0) ? (val << 1) : (((-val) << 1) - 1);
                     for (int param = 0; param < 15; param++, val >>>= 1)
-                        bitsAtParam[param + j * 16] += val + 1 + param;
+                        bitsAtParam[param + j * 16] = (int) (bitsAtParam[param + j * 16] + val + 1 + param);
                 }
             } else {  // Both arrays are non-null
                 // Logically halve the size of both arrays (but without reallocating to the true new size)
@@ -81,7 +81,7 @@ final class RiceEncoder {
                 }
             }
 
-            long size = 4 + (4 << order);
+            long size = 4 + (4L << order);
             for (int i = 0; i < numPartitions; i++) {
                 int min = Integer.MAX_VALUE;
                 if (escapeBits[i] <= 31)
@@ -119,7 +119,7 @@ final class RiceEncoder {
             int numBits = 65 - Long.numberOfLeadingZeros(accumulator);
             assert 1 <= numBits && numBits <= 65;
             if (numBits <= 31) {
-                bestSize = 4 + 5 + (end - start) * numBits;
+                bestSize = 4 + 5 + (long) (end - start) * numBits;
                 bestParam = 16 + numBits;
                 if ((bestParam >>> 6) != 0)
                     throw new AssertionError();

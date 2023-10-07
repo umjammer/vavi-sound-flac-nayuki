@@ -25,7 +25,7 @@ import java.util.Objects;
 
 
 /*
- * Speeds up computations of a signal vector's autocorrelation by avoiding redundant
+ * Speeds up computations of a signal vector's autocorrection by avoiding redundant
  * arithmetic operations. Acts as a helper class for LinearPredictiveEncoder.
  * Objects of this class are intended to be immutable, but can't enforce it because
  * they store a reference to a caller-controlled array without making a private copy.

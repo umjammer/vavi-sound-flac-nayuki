@@ -67,7 +67,7 @@ public final class SeekTable {
      * Constructs a seek table by parsing the given byte array representing the metadata block.
      * (The array must contain only the metadata payload, without the type or length fields.)
      * <p>This constructor does not check the validity of the seek points, namely the ordering
-     * of seek point offsets, so calling {@link#checkValues()} on the freshly constructed object
+     * of seek point offsets, so calling {@link #checkValues()} on the freshly constructed object
      * can fail. However, this does guarantee that every point's frameSamples field is a uint16.</p>
      *
      * @param b the metadata block's payload data to parse (not {@code null})
@@ -110,7 +110,7 @@ public final class SeekTable {
      * </ul>
      *
      * @throws NullPointerException  if the list or an element is {@code null}
-     * @throws IllegalStateException if the current list of seek points is contains invalid data
+     * @throws IllegalStateException if the current list of seek points is containing invalid data
      */
     public void checkValues() {
         // Check list and each point
@@ -145,7 +145,7 @@ public final class SeekTable {
      * @throws NullPointerException  if the output stream is {@code null}
      * @throws IllegalStateException if there are too many
      * @throws IOException           if an I/O exception occurred
-     *                               seek points (> 932067) or {@link#checkValues()} fails
+     *                               seek points (> 932067) or {@link #checkValues()} fails
      */
     public void write(boolean last, BitOutputStream out) throws IOException {
         // Check arguments and state

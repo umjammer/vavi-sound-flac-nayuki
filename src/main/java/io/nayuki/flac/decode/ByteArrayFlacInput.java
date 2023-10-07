@@ -50,17 +50,20 @@ public final class ByteArrayFlacInput extends AbstractFlacLowLevelInput {
 
     /*---- Methods ----*/
 
+    @Override
     public long getLength() {
         return data.length;
     }
 
 
+    @Override
     public void seekTo(long pos) {
         offset = (int) pos;
         positionChanged(pos);
     }
 
 
+    @Override
     protected int readUnderlying(byte[] buf, int off, int len) {
         if (off < 0 || off > buf.length || len < 0 || len > buf.length - off)
             throw new ArrayIndexOutOfBoundsException();
@@ -76,6 +79,7 @@ public final class ByteArrayFlacInput extends AbstractFlacLowLevelInput {
     // Discards data buffers and invalidates this stream. Because this class and its superclass
     // only use memory and have no native resources, it's okay to simply let a ByteArrayFlacInput
     // be garbage-collected without calling close().
+    @Override
     public void close() throws IOException {
         if (data != null) {
             data = null;

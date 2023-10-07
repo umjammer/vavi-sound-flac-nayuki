@@ -262,7 +262,7 @@ public final class FlacDecoder implements AutoCloseable {
         if (frame.sampleOffset != -1)
             return frame.sampleOffset;
         else if (frame.frameIndex != -1)
-            return frame.frameIndex * streamInfo.maxBlockSize;
+            return (long) frame.frameIndex * streamInfo.maxBlockSize;
         else
             throw new AssertionError();
     }
@@ -270,6 +270,7 @@ public final class FlacDecoder implements AutoCloseable {
 
     // Closes the underlying input streams and discards object data.
     // This decoder object becomes invalid for any method calls or field usages.
+    @Override
     public void close() throws IOException {
         if (input != null) {
             streamInfo = null;

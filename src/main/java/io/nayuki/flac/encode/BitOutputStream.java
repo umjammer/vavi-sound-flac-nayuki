@@ -61,7 +61,7 @@ public final class BitOutputStream implements AutoCloseable {
 
     /*-- Bit position --*/
 
-    // Writes between 0 to 7 zero bits, to align the current bit position to a byte boundary.
+    // Writes between 0 and 7 zero bits, to align the current bit position to a byte boundary.
     public void alignToByte() throws IOException {
         writeInt((64 - bitBufferLen) % 8, 0);
     }
@@ -162,6 +162,7 @@ public final class BitOutputStream implements AutoCloseable {
     // does not have native resources. It is okay to flush() the pending data and simply let a BitOutputStream
     // be garbage collected without calling close(), but the parent is still responsible for calling close()
     // on the underlying output stream if it uses native resources (such as FileOutputStream or SocketOutputStream).
+    @Override
     public void close() throws IOException {
         if (out != null) {
             checkByteAligned();

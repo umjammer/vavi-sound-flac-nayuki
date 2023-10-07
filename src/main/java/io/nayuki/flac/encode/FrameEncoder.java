@@ -98,7 +98,7 @@ final class FrameEncoder {
                 enc.metadata.writeHeader(bitout);
             }
             bout.close();
-            size += bout.toByteArray().length * 8;
+            size += bout.toByteArray().length * 8L;
         } catch (IOException e) {
             throw new AssertionError(e);
         }

@@ -39,8 +39,8 @@ final class FixedPredictionEncoder extends SubframeEncoder {
         LinearPredictiveEncoder.applyLpc(samples, COEFFICIENTS[order], 0);
         long temp = RiceEncoder.computeBestSizeAndOrder(samples, order, maxRiceOrder);
         enc.riceOrder = (int) (temp & 0xF);
-        long size = 1 + 6 + 1 + shift + order * depth + (temp >>> 4);
-        return new SizeEstimate<SubframeEncoder>(size, enc);
+        long size = 1 + 6 + 1 + shift + (long) order * depth + (temp >>> 4);
+        return new SizeEstimate<>(size, enc);
     }
 
 
@@ -56,6 +56,7 @@ final class FixedPredictionEncoder extends SubframeEncoder {
     }
 
 
+    @Override
     public void encode(long[] samples, BitOutputStream out) throws IOException {
         Objects.requireNonNull(samples);
         Objects.requireNonNull(out);

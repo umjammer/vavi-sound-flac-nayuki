@@ -51,6 +51,7 @@ public final class SeekableFileFlacInput extends AbstractFlacLowLevelInput {
 
     /*---- Methods ----*/
 
+    @Override
     public long getLength() {
         try {
             return raf.length();
@@ -60,18 +61,21 @@ public final class SeekableFileFlacInput extends AbstractFlacLowLevelInput {
     }
 
 
+    @Override
     public void seekTo(long pos) throws IOException {
         raf.seek(pos);
         positionChanged(pos);
     }
 
 
+    @Override
     protected int readUnderlying(byte[] buf, int off, int len) throws IOException {
         return raf.read(buf, off, len);
     }
 
 
     // Closes the underlying RandomAccessFile stream (very important).
+    @Override
     public void close() throws IOException {
         if (raf != null) {
             raf.close();

@@ -23,7 +23,6 @@ package io.nayuki.flac.encode;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Objects;
 
 
@@ -47,7 +46,7 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
         LinearPredictiveEncoder enc = new LinearPredictiveEncoder(samples, shift, depth, order, fdp);
         samples = shiftRight(samples, shift);
 
-        final double[] residues;
+        double[] residues;
         Integer[] indices = null;
         int scaler = 1 << enc.coefShift;
         if (roundVars > 0) {
@@ -57,11 +56,7 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
                 residues[i] = Math.abs(Math.round(enc.realCoefs[i] * scaler) - enc.realCoefs[i] * scaler);
                 indices[i] = i;
             }
-            Arrays.sort(indices, new Comparator<Integer>() {
-                public int compare(Integer x, Integer y) {
-                    return Double.compare(residues[y], residues[x]);
-                }
-            });
+            Arrays.sort(indices, (x, y) -> Double.compare(residues[y], residues[x]));
         } else
             residues = null;
 
@@ -82,7 +77,7 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
             long[] newData = roundVars > 0 ? samples.clone() : samples;
             applyLpc(newData, enc.coefficients, enc.coefShift);
             long temp = RiceEncoder.computeBestSizeAndOrder(newData, order, maxRiceOrder);
-            long size = 1 + 6 + 1 + shift + order * depth + (temp >>> 4);
+            long size = 1 + 6 + 1 + shift + (long) order * depth + (temp >>> 4);
             if (size < bestSize) {
                 bestSize = size;
                 bestCoefs = enc.coefficients.clone();
@@ -90,7 +85,7 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
             }
         }
         enc.coefficients = bestCoefs;
-        return new SizeEstimate<SubframeEncoder>(bestSize, enc);
+        return new SizeEstimate<>(bestSize, enc);
     }
 
 
@@ -204,6 +199,7 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
     }
 
 
+    @Override
     public void encode(long[] samples, BitOutputStream out) throws IOException {
         Objects.requireNonNull(samples);
         Objects.requireNonNull(out);

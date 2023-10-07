@@ -28,7 +28,7 @@ import java.util.Objects;
 
 
 /**
- * A basic implementation of most functionality required by FlacLowLevelInpuut.
+ * A basic implementation of most functionality required by FlacLowLevelInput.
  */
 public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
 
@@ -65,11 +65,13 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
 
     /*-- Stream position --*/
 
+    @Override
     public long getPosition() {
         return byteBufferStartPos + byteBufferIndex - (bitBufferLen + 7) / 8;
     }
 
 
+    @Override
     public int getBitPosition() {
         return (-bitBufferLen) & 7;
     }
@@ -97,6 +99,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
 
     /*-- Reading bitwise integers --*/
 
+    @Override
     public int readUint(int n) throws IOException {
         if (n < 0 || n > 32)
             throw new IllegalArgumentException();
@@ -119,12 +122,14 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
     }
 
 
+    @Override
     public int readSignedInt(int n) throws IOException {
         int shift = 32 - n;
         return (readUint(n) << shift) >> shift;
     }
 
 
+    @Override
     public void readRiceSignedInts(int param, long[] result, int start, int end) throws IOException {
         if (param < 0 || param > 31)
             throw new IllegalArgumentException();
@@ -199,6 +204,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
 
     /*-- Reading bytes --*/
 
+    @Override
     public int readByte() throws IOException {
         checkByteAligned();
         if (bitBufferLen >= 8)
@@ -210,6 +216,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
     }
 
 
+    @Override
     public void readFully(byte[] b) throws IOException {
         Objects.requireNonNull(b);
         checkByteAligned();
@@ -218,7 +225,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
     }
 
 
-    // Reads a byte from the byte buffer (if available) or from the underlying stream, returning either a uint8 or -1.
+    // Reads a byte from the byte buffer (if available) or from the underlying stream, returning either an uint8 or -1.
     private int readUnderlying() throws IOException {
         if (byteBufferIndex >= byteBufferLen) {
             if (byteBufferLen == -1)
@@ -245,6 +252,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
 
     /*-- CRC calculations --*/
 
+    @Override
     public void resetCrcs() {
         checkByteAligned();
         crcStartIndex = byteBufferIndex - bitBufferLen / 8;
@@ -253,6 +261,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
     }
 
 
+    @Override
     public int getCrc8() {
         checkByteAligned();
         updateCrcs(bitBufferLen / 8);
@@ -262,6 +271,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
     }
 
 
+    @Override
     public int getCrc16() {
         checkByteAligned();
         updateCrcs(bitBufferLen / 8);
@@ -289,6 +299,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
 
     // Note: This class only uses memory and has no native resources. It's not strictly necessary to
     // call the implementation of AbstractFlacLowLevelInput.close() here, but it's a good habit anyway.
+    @Override
     public void close() throws IOException {
         byteBuffer = null;
         byteBufferLen = -1;

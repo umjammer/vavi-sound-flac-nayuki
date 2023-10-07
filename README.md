@@ -1,7 +1,7 @@
 [![Release](https://jitpack.io/v/umjammer/vavi-sound-flac-nayuki.svg)](https://jitpack.io/#umjammer/vavi-sound-flac-nayuki)
 [![Java CI](https://github.com/umjammer/vavi-sound-flac-nayuki/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-sound-flac-nayuki/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/umjammer/vavi-sound-flac-nayuki/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/vavi-sound-flac-nayuki/actions/workflows/codeql.yml)
-![Java](https://img.shields.io/badge/Java-8-b07219)
+![Java](https://img.shields.io/badge/Java-17-b07219)
 [![Parent](https://img.shields.io/badge/Parent-vavi--sound--sandbox-pink)](https://github.com/umjammer/vavi-sound-sandbox)
 
 # vavi-sound-flac-nayuki
