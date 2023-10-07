@@ -88,7 +88,19 @@ public final class FlacDecoder implements AutoCloseable {
         metadataEndPos = -1;
     }
 
+    /**
+     * backport from jpcsp f562cfb2
+     */
+    public FlacDecoder(FlacLowLevelInput input) throws IOException {
+        // Initialize streams
+        Objects.requireNonNull(input);
+        this.input = input;
 
+        // Read basic header
+        if (input.readUint(32) != 0x664C6143)  // Magic string "fLaC"
+            throw new DataFormatException("Invalid magic string");
+        metadataEndPos = -1;
+    }
 
     /*---- Methods ----*/
 
