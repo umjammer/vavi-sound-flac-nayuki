@@ -111,14 +111,14 @@ final class FrameEncoder {
 
 
 
-    /*---- Fields ----*/
+    // Fields
 
     public FrameInfo metadata;
     private SubframeEncoder[] subEncoders;
 
 
 
-    /*---- Constructors ----*/
+    // Constructors
 
     public FrameEncoder(int sampleOffset, long[][] samples, int sampleDepth, int sampleRate) {
         metadata = new FrameInfo();

@@ -60,7 +60,7 @@ import io.nayuki.flac.common.StreamInfo;
  */
 public final class FlacDecoder implements AutoCloseable {
 
-    /*---- Fields ----*/
+    // Fields
 
     public StreamInfo streamInfo;
     public SeekTable seekTable;
@@ -71,12 +71,12 @@ public final class FlacDecoder implements AutoCloseable {
 
     private FrameDecoder frameDec;
 
+    // Constructors
 
-
-    /*---- Constructors ----*/
-
-    // Constructs a new FLAC decoder to read the given file.
-    // This immediately reads the basic header but not metadata blocks.
+    /**
+     * Constructs a new FLAC decoder to read the given file.
+     * This immediately reads the basic header but not metadata blocks.
+     */
     public FlacDecoder(File file) throws IOException {
         // Initialize streams
         Objects.requireNonNull(file);
@@ -102,7 +102,7 @@ public final class FlacDecoder implements AutoCloseable {
         metadataEndPos = -1;
     }
 
-    /*---- Methods ----*/
+    // Methods
 
     // Reads, handles, and returns the next metadata block. Returns a pair (Integer type, byte[] data) if the
     // next metadata block exists, otherwise returns null if the final metadata block was previously read.

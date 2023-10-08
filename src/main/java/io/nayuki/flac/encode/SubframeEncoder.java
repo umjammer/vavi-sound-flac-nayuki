@@ -166,7 +166,7 @@ public abstract class SubframeEncoder {
 
 
 
-    /*---- Helper structure ----*/
+    // Helper structure
 
     // Represents options for how to search the encoding parameters for a subframe. It is used directly by
     // SubframeEncoder.computeBest() and indirectly by its sub-calls. Objects of this class are immutable.

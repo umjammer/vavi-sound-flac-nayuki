@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public final class BitOutputStream implements AutoCloseable {
 
-    /*---- Fields ----*/
+    // Fields
 
     private OutputStream out;  // The underlying byte-based output stream to write to.
     private long bitBuffer;  // Only the bottom bitBufferLen bits are valid; the top bits are garbage.
@@ -44,7 +44,7 @@ public final class BitOutputStream implements AutoCloseable {
 
 
 
-    /*---- Constructors ----*/
+    // Constructors
 
     // Constructs a FLAC-oriented bit output stream from the given byte-based output stream.
     public BitOutputStream(OutputStream out) throws IOException {
@@ -57,7 +57,7 @@ public final class BitOutputStream implements AutoCloseable {
 
 
 
-    /*---- Methods ----*/
+    // Methods
 
     /*-- Bit position --*/
 

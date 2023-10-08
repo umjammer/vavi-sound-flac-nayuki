@@ -39,36 +39,44 @@ import io.nayuki.flac.common.FrameInfo;
  */
 public final class FrameDecoder {
 
-    /*---- Fields ----*/
+    // Fields
 
-    // Can be changed when there is no active call of readFrame().
-    // Must be not null when readFrame() is called.
+    /**
+     * Can be changed when there is no active call of readFrame().
+     * Must be not null when readFrame() is called.
+     */
     public FlacLowLevelInput in;
 
-    // Can be changed when there is no active call of readFrame().
-    // Must be in the range [4, 32].
+    /**
+     * Can be changed when there is no active call of readFrame().
+     * Must be in the range [4, 32].
+     */
     public int expectedSampleDepth;
 
-    // Temporary arrays to hold two decoded audio channels (a.k.a. subframes). They have int64 range
-    // because the worst case of 32-bit audio encoded in stereo side mode uses signed 33 bits.
-    // The maximum possible block size is either 65536 samples per channel from the
-    // frame header logic, or 65535 from a strict reading of the FLAC specification.
-    // Two buffers are needed for stereo coding modes, but not more than two because
-    // all other multi-channel audio is processed independently per channel.
+    /**
+     * Temporary arrays to hold two decoded audio channels (a.k.a. subframes). They have int64 range
+     * because the worst case of 32-bit audio encoded in stereo side mode uses signed 33 bits.
+     * The maximum possible block size is either 65536 samples per channel from the
+     * frame header logic, or 65535 from a strict reading of the FLAC specification.
+     * Two buffers are needed for stereo coding modes, but not more than two because
+     * all other multi-channel audio is processed independently per channel.
+     */
     private long[] temp0;
     private long[] temp1;
 
-    // The number of samples (per channel) in the current block/frame being processed.
-    // This value is only valid while the method readFrame() is on the call stack.
-    // When readFrame() is active, this value is in the range [1, 65536].
+    /**
+     * The number of samples (per channel) in the current block/frame being processed.
+     * This value is only valid while the method readFrame() is on the call stack.
+     * When readFrame() is active, this value is in the range [1, 65536].
+     */
     private int currentBlockSize;
 
+    // Constructors
 
-
-    /*---- Constructors ----*/
-
-    // Constructs a frame decoder that initially uses the given stream.
-    // The caller is responsible for cleaning up the input stream.
+    /**
+     * Constructs a frame decoder that initially uses the given stream.
+     * The caller is responsible for cleaning up the input stream.
+     */
     public FrameDecoder(FlacLowLevelInput in, int expectDepth) {
         this.in = in;
         expectedSampleDepth = expectDepth;
@@ -77,16 +85,16 @@ public final class FrameDecoder {
         currentBlockSize = -1;
     }
 
+    // Methods
 
-
-    /*---- Methods ----*/
-
-    // Reads the next frame of FLAC data from the current bit input stream, decodes it,
-    // and stores output samples into the given array, and returns a new metadata object.
-    // The bit input stream must be initially aligned at a byte boundary. If EOF is encountered before
-    // any actual bytes were read, then this returns null. Otherwise this function either successfully
-    // decodes a frame and returns a new metadata object, or throws an appropriate exception. A frame
-    // may have up to 8 channels and 65536 samples, so the output arrays need to be sized appropriately.
+    /**
+     * Reads the next frame of FLAC data from the current bit input stream, decodes it,
+     * and stores output samples into the given array, and returns a new metadata object.
+     * The bit input stream must be initially aligned at a byte boundary. If EOF is encountered before
+     * any actual bytes were read, then this returns null. Otherwise this function either successfully
+     * decodes a frame and returns a new metadata object, or throws an appropriate exception. A frame
+     * may have up to 8 channels and 65536 samples, so the output arrays need to be sized appropriately.
+     */
     public FrameInfo readFrame(int[][] outSamples, int outOffset) throws IOException {
         // Check field states
         Objects.requireNonNull(in);
@@ -132,11 +140,12 @@ public final class FrameDecoder {
         return meta;
     }
 
-
-    // Based on the current bit input stream and the two given arguments, this method reads and decodes
-    // each subframe, performs stereo decoding if applicable, and writes the final uncompressed audio data
-    // to the array range outSamples[0 : numChannels][outOffset : outOffset + currentBlockSize].
-    // Note that this method uses the private temporary arrays and passes them into sub-method calls.
+    /**
+     * Based on the current bit input stream and the two given arguments, this method reads and decodes
+     * each subframe, performs stereo decoding if applicable, and writes the final uncompressed audio data
+     * to the array range outSamples[0 : numChannels][outOffset : outOffset + currentBlockSize].
+     * Note that this method uses the private temporary arrays and passes them into sub-method calls.
+     */
     private void decodeSubframes(int sampleDepth, int chanAsgn, int[][] outSamples, int outOffset) throws IOException {
         // Check arguments
         if (sampleDepth < 1 || sampleDepth > 32)
@@ -186,11 +195,12 @@ public final class FrameDecoder {
             throw new DataFormatException("Reserved channel assignment");
     }
 
-
-    // Checks that 'val' is a signed 'depth'-bit integer, and either returns the
-    // value downcasted to an int or throws an exception if it's out of range.
-    // Note that depth must be in the range [1, 32] because the return value is an int.
-    // For example when depth = 16, the range of valid values is [-32768, 32767].
+    /**
+     * Checks that 'val' is a signed 'depth'-bit integer, and either returns the
+     * value downcasted to an int or throws an exception if it's out of range.
+     * Note that depth must be in the range [1, 32] because the return value is an int.
+     * For example when depth = 16, the range of valid values is [-32768, 32767].
+     */
     private static int checkBitDepth(long val, int depth) {
         assert 1 <= depth && depth <= 32;
         // Equivalent check: (val >> (depth - 1)) == 0 || (val >> (depth - 1)) == -1
@@ -200,8 +210,9 @@ public final class FrameDecoder {
             throw new IllegalArgumentException(val + " is not a signed " + depth + "-bit value");
     }
 
-
-    // Reads one subframe from the bit input stream, decodes it, and writes to result[0 : currentBlockSize].
+    /**
+     * Reads one subframe from the bit input stream, decodes it, and writes to result[0 : currentBlockSize].
+     */
     private void decodeSubframe(int sampleDepth, long[] result) throws IOException {
         // Check arguments
         Objects.requireNonNull(result);
@@ -246,8 +257,9 @@ public final class FrameDecoder {
         }
     }
 
-
-    // Reads from the input stream, performs computation, and writes to result[0 : currentBlockSize].
+    /**
+     * Reads from the input stream, performs computation, and writes to result[0 : currentBlockSize].
+     */
     private void decodeFixedPredictionSubframe(int predOrder, int sampleDepth, long[] result) throws IOException {
         // Check arguments
         Objects.requireNonNull(result);
@@ -275,8 +287,9 @@ public final class FrameDecoder {
             {4, -6, 4, -1},
     };
 
-
-    // Reads from the input stream, performs computation, and writes to result[0 : currentBlockSize].
+    /**
+     * Reads from the input stream, performs computation, and writes to result[0 : currentBlockSize].
+     */
     private void decodeLinearPredictiveCodingSubframe(int lpcOrder, int sampleDepth, long[] result) throws IOException {
         // Check arguments
         Objects.requireNonNull(result);
@@ -311,17 +324,18 @@ public final class FrameDecoder {
         restoreLpc(result, coefs, sampleDepth, shift);
     }
 
-
-    // Updates the values of result[coefs.length : currentBlockSize] according to linear predictive coding.
-    // This method reads all the arguments and the field currentBlockSize, only writes to result, and has no other side effects.
-    // After this method returns, every value in result must fit in a signed sampleDepth-bit integer.
-    // The largest allowed sample depth is 33, hence the largest absolute value allowed in the result is 2^32.
-    // During the LPC restoration process, the prefix of result before index i consists of entirely int33 values.
-    // Because coefs.length <= 32 and each coefficient fits in a signed int15 (both according to the FLAC specification),
-    // the maximum (worst-case) absolute value of 'sum' is 2^32 * 2^14 * 32 = 2^51, which fits in a signed int53.
-    // And because of this, the maximum possible absolute value of a residual before LPC restoration is applied,
-    // such that the post-LPC result fits in a signed int33, is 2^51 + 2^32 which also fits in a signed int53.
-    // Therefore a residue that is larger than a signed int53 will necessarily not fit in the int33 result and is wrong.
+    /**
+     * Updates the values of result[coefs.length : currentBlockSize] according to linear predictive coding.
+     * This method reads all the arguments and the field currentBlockSize, only writes to result, and has no other side effects.
+     * After this method returns, every value in result must fit in a signed sampleDepth-bit integer.
+     * The largest allowed sample depth is 33, hence the largest absolute value allowed in the result is 2^32.
+     * During the LPC restoration process, the prefix of result before index i consists of entirely int33 values.
+     * Because coefs.length <= 32 and each coefficient fits in a signed int15 (both according to the FLAC specification),
+     * the maximum (worst-case) absolute value of 'sum' is 2^32 * 2^14 * 32 = 2^51, which fits in a signed int53.
+     * And because of this, the maximum possible absolute value of a residual before LPC restoration is applied,
+     * such that the post-LPC result fits in a signed int33, is 2^51 + 2^32 which also fits in a signed int53.
+     * Therefore a residue that is larger than a signed int53 will necessarily not fit in the int33 result and is wrong.
+     */
     private void restoreLpc(long[] result, int[] coefs, int sampleDepth, int shift) {
         // Check and handle arguments
         Objects.requireNonNull(result);
@@ -349,9 +363,10 @@ public final class FrameDecoder {
         }
     }
 
-
-    // Reads metadata and Rice-coded numbers from the input stream, storing them in result[warmup : currentBlockSize].
-    // The stored numbers are guaranteed to fit in a signed int53 - see the explanation in restoreLpc().
+    /**
+     * Reads metadata and Rice-coded numbers from the input stream, storing them in result[warmup : currentBlockSize].
+     * The stored numbers are guaranteed to fit in a signed int53 - see the explanation in restoreLpc().
+     */
     private void readResiduals(int warmup, long[] result) throws IOException {
         // Check and handle arguments
         Objects.requireNonNull(result);
@@ -385,5 +400,4 @@ public final class FrameDecoder {
             }
         }
     }
-
 }

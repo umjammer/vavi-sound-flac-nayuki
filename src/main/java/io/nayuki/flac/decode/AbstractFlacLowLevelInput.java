@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
 
-    /*---- Fields ----*/
+    // Fields
 
     // Data from the underlying stream is first stored into this byte buffer before further processing.
     private long byteBufferStartPos;
@@ -42,43 +42,44 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
 
     // The buffer of next bits to return to a reader. Note that byteBufferIndex is incremented when byte
     // values are put into the bit buffer, but they might not have been consumed by the ultimate reader yet.
-    private long bitBuffer;  // Only the bottom bitBufferLen bits are valid; the top bits are garbage.
-    private int bitBufferLen;  // Always in the range [0, 64].
+    /** Only the bottom bitBufferLen bits are valid; the top bits are garbage. */
+    private long bitBuffer;
+    /** Always in the range [0, 64]. */
+    private int bitBufferLen;
 
     // Current state of the CRC calculations.
-    private int crc8;  // Always a uint8 value.
-    private int crc16;  // Always a uint16 value.
-    private int crcStartIndex;  // In the range [0, byteBufferLen], unless byteBufferLen = -1.
+    /** Always a uint8 value. */
+    private int crc8;
+    /** Always a uint16 value. */
+    private int crc16;
+    /** In the range [0, byteBufferLen], unless byteBufferLen = -1. */
+    private int crcStartIndex;
 
-
-
-    /*---- Constructors ----*/
+    // Constructors
 
     public AbstractFlacLowLevelInput() {
         byteBuffer = new byte[4096];
         positionChanged(0);
     }
 
+    // Methods
 
-
-    /*---- Methods ----*/
-
-    /*-- Stream position --*/
+    // Stream position
 
     @Override
     public long getPosition() {
         return byteBufferStartPos + byteBufferIndex - (bitBufferLen + 7) / 8;
     }
 
-
     @Override
     public int getBitPosition() {
         return (-bitBufferLen) & 7;
     }
 
-
-    // When a subclass handles seekTo() and didn't throw UnsupportedOperationException,
-    // it must call this method to flush the buffers of upcoming data.
+    /**
+     * When a subclass handles seekTo() and didn't throw UnsupportedOperationException,
+     * it must call this method to flush the buffers of upcoming data.
+     */
     protected void positionChanged(long pos) {
         byteBufferStartPos = pos;
         Arrays.fill(byteBuffer, (byte) 0);  // Defensive clearing, should have no visible effect outside of debugging
@@ -89,15 +90,13 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         resetCrcs();
     }
 
-
-    // Either returns silently or throws an exception.
+    /** Either returns silently or throws an exception. */
     private void checkByteAligned() {
         if (bitBufferLen % 8 != 0)
             throw new IllegalStateException("Not at a byte boundary");
     }
 
-
-    /*-- Reading bitwise integers --*/
+    // Reading bitwise integers
 
     @Override
     public int readUint(int n) throws IOException {
@@ -121,13 +120,11 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         return result;
     }
 
-
     @Override
     public int readSignedInt(int n) throws IOException {
         int shift = 32 - n;
         return (readUint(n) << shift) >> shift;
     }
-
 
     @Override
     public void readRiceSignedInts(int param, long[] result, int start, int end) throws IOException {
@@ -180,8 +177,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         }
     }
 
-
-    // Appends at least 8 bits to the bit buffer, or throws EOFException.
+    /** Appends at least 8 bits to the bit buffer, or throws EOFException. */
     private void fillBitBuffer() throws IOException {
         int i = byteBufferIndex;
         int n = Math.min((64 - bitBufferLen) >>> 3, byteBufferLen - i);
@@ -201,8 +197,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         byteBufferIndex += n;
     }
 
-
-    /*-- Reading bytes --*/
+    // Reading bytes
 
     @Override
     public int readByte() throws IOException {
@@ -215,7 +210,6 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         }
     }
 
-
     @Override
     public void readFully(byte[] b) throws IOException {
         Objects.requireNonNull(b);
@@ -224,8 +218,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
             b[i] = (byte) readUint(8);
     }
 
-
-    // Reads a byte from the byte buffer (if available) or from the underlying stream, returning either an uint8 or -1.
+    /** Reads a byte from the byte buffer (if available) or from the underlying stream, returning either an uint8 or -1. */
     private int readUnderlying() throws IOException {
         if (byteBufferIndex >= byteBufferLen) {
             if (byteBufferLen == -1)
@@ -244,13 +237,13 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         return temp;
     }
 
-
-    // Reads up to 'len' bytes from the underlying byte-based input stream into the given array subrange.
-    // Returns a value in the range [0, len] for a successful read, or -1 if the end of stream was reached.
+    /**
+     * Reads up to 'len' bytes from the underlying byte-based input stream into the given array subrange.
+     * Returns a value in the range [0, len] for a successful read, or -1 if the end of stream was reached.
+     */
     protected abstract int readUnderlying(byte[] buf, int off, int len) throws IOException;
 
-
-    /*-- CRC calculations --*/
+    // CRC calculations
 
     @Override
     public void resetCrcs() {
@@ -259,7 +252,6 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         crc8 = 0;
         crc16 = 0;
     }
-
 
     @Override
     public int getCrc8() {
@@ -270,7 +262,6 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         return crc8;
     }
 
-
     @Override
     public int getCrc16() {
         checkByteAligned();
@@ -280,8 +271,7 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         return crc16;
     }
 
-
-    // Updates the two CRC values with data in byteBuffer[crcStartIndex : byteBufferIndex - unusedTrailingBytes].
+    /** Updates the two CRC values with data in byteBuffer[crcStartIndex : byteBufferIndex - unusedTrailingBytes]. */
     private void updateCrcs(int unusedTrailingBytes) {
         int end = byteBufferIndex - unusedTrailingBytes;
         for (int i = crcStartIndex; i < end; i++) {
@@ -294,11 +284,12 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         crcStartIndex = end;
     }
 
+    // Miscellaneous
 
-    /*-- Miscellaneous --*/
-
-    // Note: This class only uses memory and has no native resources. It's not strictly necessary to
-    // call the implementation of AbstractFlacLowLevelInput.close() here, but it's a good habit anyway.
+    /**
+     * Note: This class only uses memory and has no native resources. It's not strictly necessary to
+     * call the implementation of AbstractFlacLowLevelInput.close() here, but it's a good habit anyway.
+     */
     @Override
     public void close() throws IOException {
         byteBuffer = null;
@@ -311,17 +302,17 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         crcStartIndex = -1;
     }
 
-
-
-    /*---- Tables of constants ----*/
+    // Tables of constants
 
     // For Rice decoding
 
-    private static final int RICE_DECODING_TABLE_BITS = 13;  // Configurable, must be positive
+    /** Configurable, must be positive */
+    private static final int RICE_DECODING_TABLE_BITS = 13;
     private static final int RICE_DECODING_TABLE_MASK = (1 << RICE_DECODING_TABLE_BITS) - 1;
     private static final byte[][] RICE_DECODING_CONSUMED_TABLES = new byte[31][1 << RICE_DECODING_TABLE_BITS];
     private static final int[][] RICE_DECODING_VALUE_TABLES = new int[31][1 << RICE_DECODING_TABLE_BITS];
-    private static final int RICE_DECODING_CHUNK = 4;  // Configurable, must be positive, and RICE_DECODING_CHUNK * RICE_DECODING_TABLE_BITS <= 64
+    /** Configurable, must be positive, and RICE_DECODING_CHUNK * RICE_DECODING_TABLE_BITS <= 64 */
+    private static final int RICE_DECODING_CHUNK = 4;
 
     static {
         for (int param = 0; param < RICE_DECODING_CONSUMED_TABLES.length; param++) {
@@ -343,7 +334,6 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
         }
     }
 
-
     // For CRC calculations
 
     private static byte[] CRC8_TABLE = new byte[256];
@@ -361,5 +351,4 @@ public abstract class AbstractFlacLowLevelInput implements FlacLowLevelInput {
             CRC16_TABLE[i] = (char) temp16;
         }
     }
-
 }

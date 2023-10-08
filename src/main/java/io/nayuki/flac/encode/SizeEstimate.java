@@ -29,14 +29,14 @@ import java.util.Objects;
  */
 public final class SizeEstimate<E> {
 
-    /*---- Fields ----*/
+    // Fields
 
-    public final long sizeEstimate;  // Non-negative
-    public final E encoder;  // Not null
+    /** Non-negative */
+    public final long sizeEstimate;
+    /** Not null */
+    public final E encoder;
 
-
-
-    /*---- Constructors ----*/
+    // Constructors
 
     public SizeEstimate(long size, E enc) {
         if (size < 0)
@@ -45,9 +45,7 @@ public final class SizeEstimate<E> {
         encoder = Objects.requireNonNull(enc);
     }
 
-
-
-    /*---- Methods ----*/
+    // Methods
 
     // Returns this object if the size is less than or equal to the other object, otherwise returns other.
     public SizeEstimate<E> minimum(SizeEstimate<E> other) {
@@ -57,5 +55,4 @@ public final class SizeEstimate<E> {
         else
             return other;
     }
-
 }

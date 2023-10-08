@@ -43,7 +43,7 @@ import io.nayuki.flac.encode.BitOutputStream;
  */
 public final class StreamInfo {
 
-    /*---- Fields about block and frame sizes ----*/
+    // Fields about block and frame sizes
 
     /**
      * Minimum block size (in samples per channel) among the whole stream, an uint16 value.
@@ -69,8 +69,7 @@ public final class StreamInfo {
      */
     public int maxFrameSize;
 
-
-    /*---- Fields about stream properties ----*/
+    // Fields about stream properties
 
     /**
      * The sample rate of the audio stream (in hertz (Hz)), a positive uint20 value.
@@ -102,9 +101,7 @@ public final class StreamInfo {
      */
     public byte[] md5Hash;
 
-
-
-    /*---- Constructors ----*/
+    // Constructors
 
     /**
      * Constructs a blank stream info structure with certain default values.
@@ -121,7 +118,6 @@ public final class StreamInfo {
         maxBlockSize = 0;
         sampleRate = 0;
     }
-
 
     /**
      * Constructs a stream info structure by parsing the specified 34-byte metadata block.
@@ -164,9 +160,7 @@ public final class StreamInfo {
         }
     }
 
-
-
-    /*---- Methods ----*/
+    // Methods
 
     /**
      * Checks the state of this object, and either returns silently or throws an exception.
@@ -196,7 +190,6 @@ public final class StreamInfo {
             throw new IllegalStateException("Invalid MD5 hash length");
     }
 
-
     /**
      * Checks whether the specified frame information is consistent with values in
      * this stream info object, either returning silently or throwing an exception.
@@ -225,7 +218,6 @@ public final class StreamInfo {
         if (maxFrameSize != 0 && meta.frameSize > maxFrameSize)
             throw new DataFormatException("Frame size exceeds maximum");
     }
-
 
     /**
      * Writes this stream info metadata block to the specified output stream, including the
@@ -262,9 +254,7 @@ public final class StreamInfo {
             out.writeInt(8, b);
     }
 
-
-
-    /*---- Static functions ----*/
+    // Static functions
 
     /**
      * Computes and returns the MD5 hash of the specified raw audio sample data at the specified
@@ -313,5 +303,4 @@ public final class StreamInfo {
         }
         return hasher.digest();
     }
-
 }

@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 final class FastDotProduct {
 
-    /*---- Fields ----*/
+    // Fields
 
     // Not null, and precomputed.length <= data.length.
     private long[] data;
@@ -43,7 +43,7 @@ final class FastDotProduct {
 
 
 
-    /*---- Constructors ----*/
+    // Constructors
 
     // Constructs a fast dot product calculator over the given array, with the given maximum difference in indexes.
     // This pre-calculates some dot products and caches them so that future queries can be answered faster.
@@ -67,7 +67,7 @@ final class FastDotProduct {
 
 
 
-    /*---- Methods ----*/
+    // Methods
 
     // Returns the dot product of data[off0 : off0 + len] with data[off1 : off1 + len],
     // i.e. data[off0]*data[off1] + data[off0+1]*data[off1+1] + ... + data[off0+len-1]*data[off1+len-1],

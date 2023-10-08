@@ -30,15 +30,13 @@ import java.util.Objects;
  */
 public final class ByteArrayFlacInput extends AbstractFlacLowLevelInput {
 
-    /*---- Fields ----*/
+    // Fields
 
     // The underlying byte array to read from.
     private byte[] data;
     private int offset;
 
-
-
-    /*---- Constructors ----*/
+    // Constructors
 
     public ByteArrayFlacInput(byte[] b) {
         super();
@@ -46,22 +44,18 @@ public final class ByteArrayFlacInput extends AbstractFlacLowLevelInput {
         offset = 0;
     }
 
-
-
-    /*---- Methods ----*/
+    // Methods
 
     @Override
     public long getLength() {
         return data.length;
     }
 
-
     @Override
     public void seekTo(long pos) {
         offset = (int) pos;
         positionChanged(pos);
     }
-
 
     @Override
     protected int readUnderlying(byte[] buf, int off, int len) {
@@ -75,10 +69,11 @@ public final class ByteArrayFlacInput extends AbstractFlacLowLevelInput {
         return n;
     }
 
-
-    // Discards data buffers and invalidates this stream. Because this class and its superclass
-    // only use memory and have no native resources, it's okay to simply let a ByteArrayFlacInput
-    // be garbage-collected without calling close().
+    /**
+     * Discards data buffers and invalidates this stream. Because this class and its superclass
+     * only use memory and have no native resources, it's okay to simply let a ByteArrayFlacInput
+     * be garbage-collected without calling close().
+     */
     @Override
     public void close() throws IOException {
         if (data != null) {
@@ -86,5 +81,4 @@ public final class ByteArrayFlacInput extends AbstractFlacLowLevelInput {
             super.close();
         }
     }
-
 }

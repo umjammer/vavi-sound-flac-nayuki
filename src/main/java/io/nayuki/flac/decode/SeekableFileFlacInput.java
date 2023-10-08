@@ -32,14 +32,12 @@ import java.util.Objects;
  */
 public final class SeekableFileFlacInput extends AbstractFlacLowLevelInput {
 
-    /*---- Fields ----*/
+    // Fields
 
-    // The underlying byte-based input stream to read from.
+    /** The underlying byte-based input stream to read from. */
     private RandomAccessFile raf;
 
-
-
-    /*---- Constructors ----*/
+    // Constructors
 
     public SeekableFileFlacInput(File file) throws IOException {
         super();
@@ -47,9 +45,7 @@ public final class SeekableFileFlacInput extends AbstractFlacLowLevelInput {
         this.raf = new RandomAccessFile(file, "r");
     }
 
-
-
-    /*---- Methods ----*/
+    // Methods
 
     @Override
     public long getLength() {
@@ -60,21 +56,18 @@ public final class SeekableFileFlacInput extends AbstractFlacLowLevelInput {
         }
     }
 
-
     @Override
     public void seekTo(long pos) throws IOException {
         raf.seek(pos);
         positionChanged(pos);
     }
 
-
     @Override
     protected int readUnderlying(byte[] buf, int off, int len) throws IOException {
         return raf.read(buf, off, len);
     }
 
-
-    // Closes the underlying RandomAccessFile stream (very important).
+    /** Closes the underlying RandomAccessFile stream (very important). */
     @Override
     public void close() throws IOException {
         if (raf != null) {
@@ -83,5 +76,4 @@ public final class SeekableFileFlacInput extends AbstractFlacLowLevelInput {
             super.close();
         }
     }
-
 }

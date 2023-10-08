@@ -40,7 +40,7 @@ import io.nayuki.flac.encode.BitOutputStream;
  */
 public final class FrameInfo {
 
-    /*---- Fields ----*/
+    // Fields
 
     // Exactly one of these following two fields equals -1.
 
@@ -58,7 +58,6 @@ public final class FrameInfo {
      * the fields frameIndex and sampleOffse is equal to &minus;1 (not both nor neither).
      */
     public long sampleOffset;
-
 
     /**
      * The number of audio channels in this frame, in the range 1 to 8 inclusive.
@@ -96,9 +95,7 @@ public final class FrameInfo {
      */
     public int frameSize;
 
-
-
-    /*---- Constructors ----*/
+    // Constructors
 
     /**
      * Constructs a blank frame metadata structure, setting all fields to unknown or invalid values.
@@ -114,9 +111,7 @@ public final class FrameInfo {
         frameSize = -1;
     }
 
-
-
-    /*---- Functions to read FrameInfo from stream ----*/
+    // Functions to read FrameInfo from stream
 
     /**
      * Reads the next FLAC frame header from the specified input stream, either returning
@@ -191,8 +186,10 @@ public final class FrameInfo {
     }
 
 
-    // Reads 1 to 7 whole bytes from the input stream. Return value is a uint36.
-    // See: https://hydrogenaud.io/index.php/topic,112831.msg929128.html#msg929128
+    /**
+     * Reads 1 to 7 whole bytes from the input stream. Return value is a uint36.
+     * @see "https://hydrogenaud.io/index.php/topic,112831.msg929128.html#msg929128"
+     */
     private static long readUtf8Integer(FlacLowLevelInput in) throws IOException {
         int head = in.readUint(8);
         int n = Integer.numberOfLeadingZeros(~(head << 24));  // Number of leading 1s in the byte
@@ -216,8 +213,10 @@ public final class FrameInfo {
     }
 
 
-    // Argument is a uint4 value. Reads 0 to 2 bytes from the input stream.
-    // Return value is in the range [1, 65536].
+    /**
+     * Argument is a uint4 value. Reads 0 to 2 bytes from the input stream.
+     * @return value is in the range [1, 65536].
+     */
     private static int decodeBlockSize(int code, FlacLowLevelInput in) throws IOException {
         if ((code >>> 4) != 0)
             throw new IllegalArgumentException();
@@ -234,9 +233,10 @@ public final class FrameInfo {
         };
     }
 
-
-    // Argument is a uint4 value. Reads 0 to 2 bytes from the input stream.
-    // Return value is in the range [-1, 655350].
+    /**
+     * Argument is a uint4 value. Reads 0 to 2 bytes from the input stream.
+     * @return value is in the range [-1, 655350].
+     */
     private static int decodeSampleRate(int code, FlacLowLevelInput in) throws IOException {
         if ((code >>> 4) != 0)
             throw new IllegalArgumentException();
@@ -255,7 +255,6 @@ public final class FrameInfo {
         };
     }
 
-
     // Argument is a uint3 value. Pure function and performs no I/O. Return value is in the range [-1, 24].
     private static int decodeSampleDepth(int code) {
         if ((code >>> 3) != 0)
@@ -272,9 +271,7 @@ public final class FrameInfo {
         }
     }
 
-
-
-    /*---- Functions to write FrameInfo to stream ----*/
+    // Functions to write FrameInfo to stream
 
     /**
      * Writes the current state of this object as a frame header to the specified
@@ -330,8 +327,7 @@ public final class FrameInfo {
         out.writeInt(8, out.getCrc8());
     }
 
-
-    // Given a uint36 value, this writes 1 to 7 whole bytes to the given output stream.
+    /** Given a uint36 value, this writes 1 to 7 whole bytes to the given output stream. */
     private static void writeUtf8Integer(long val, BitOutputStream out) throws IOException {
         if ((val >>> 36) != 0)
             throw new IllegalArgumentException();
@@ -346,8 +342,7 @@ public final class FrameInfo {
         }
     }
 
-
-    // Returns a uint4 value representing the given block size. Pure function.
+    /** Returns a uint4 value representing the given block size. Pure function. */
     private static int getBlockSizeCode(int blockSize) {
         int result = searchFirst(BLOCK_SIZE_CODES, blockSize);
         if (result != -1) ;  // Already done
@@ -363,8 +358,7 @@ public final class FrameInfo {
         return result;
     }
 
-
-    // Returns a uint4 value representing the given sample rate. Pure function.
+    /** Returns a uint4 value representing the given sample rate. Pure function. */
     private static int getSampleRateCode(int sampleRate) {
         if (sampleRate == 0 || sampleRate < -1)
             throw new IllegalArgumentException();
@@ -384,8 +378,7 @@ public final class FrameInfo {
         return result;
     }
 
-
-    // Returns a uint3 value representing the given sample depth. Pure function.
+    /** Returns a uint3 value representing the given sample depth. Pure function. */
     private static int getSampleDepthCode(int sampleDepth) {
         if (sampleDepth != -1 && (sampleDepth < 1 || sampleDepth > 32))
             throw new IllegalArgumentException();
@@ -397,9 +390,7 @@ public final class FrameInfo {
         return result;
     }
 
-
-
-    /*---- Tables of constants and search functions ----*/
+    // Tables of constants and search functions
 
     private static int searchFirst(int[][] table, int key) {
         for (int[] pair : table) {
@@ -409,7 +400,6 @@ public final class FrameInfo {
         return -1;
     }
 
-
     private static int searchSecond(int[][] table, int key) {
         for (int[] pair : table) {
             if (pair[1] == key)
@@ -417,7 +407,6 @@ public final class FrameInfo {
         }
         return -1;
     }
-
 
     private static final int[][] BLOCK_SIZE_CODES = {
             {192, 1},
@@ -435,7 +424,6 @@ public final class FrameInfo {
             {32768, 15},
     };
 
-
     private static final int[][] SAMPLE_DEPTH_CODES = {
             {8, 1},
             {12, 2},
@@ -443,7 +431,6 @@ public final class FrameInfo {
             {20, 5},
             {24, 6},
     };
-
 
     private static final int[][] SAMPLE_RATE_CODES = {
             {88200, 1},
@@ -458,5 +445,4 @@ public final class FrameInfo {
             {48000, 10},
             {96000, 11},
     };
-
 }

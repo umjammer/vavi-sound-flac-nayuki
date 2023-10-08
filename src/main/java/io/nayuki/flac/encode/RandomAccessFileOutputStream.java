@@ -35,13 +35,13 @@ import java.util.Objects;
  */
 public final class RandomAccessFileOutputStream extends OutputStream {
 
-    /*---- Fields ----*/
+    // Fields
 
     private RandomAccessFile out;
 
 
 
-    /*---- Constructors ----*/
+    // Constructors
 
     public RandomAccessFileOutputStream(RandomAccessFile raf) {
         this.out = Objects.requireNonNull(raf);
@@ -49,7 +49,7 @@ public final class RandomAccessFileOutputStream extends OutputStream {
 
 
 
-    /*---- Methods ----*/
+    // Methods
 
     public long getPosition() throws IOException {
         return out.getFilePointer();

@@ -28,7 +28,7 @@ package io.nayuki.flac.decode;
 @SuppressWarnings("serial")
 public class DataFormatException extends RuntimeException {
 
-    /*---- Constructors ----*/
+    // Constructors
 
     public DataFormatException() {
         super();
@@ -43,5 +43,4 @@ public class DataFormatException extends RuntimeException {
     public DataFormatException(String msg, Throwable cause) {
         super(msg, cause);
     }
-
 }

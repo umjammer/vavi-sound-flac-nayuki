@@ -42,7 +42,7 @@ import io.nayuki.flac.encode.BitOutputStream;
  */
 public final class SeekTable {
 
-    /*---- Fields ----*/
+    // Fields
 
     /**
      * The list of seek points in this seek table. It is okay to replace this
@@ -50,9 +50,7 @@ public final class SeekTable {
      */
     public List<SeekPoint> points;
 
-
-
-    /*---- Constructors ----*/
+    // Constructors
 
     /**
      * Constructs a blank seek table with an initially empty
@@ -61,7 +59,6 @@ public final class SeekTable {
     public SeekTable() {
         points = new ArrayList<>();
     }
-
 
     /**
      * Constructs a seek table by parsing the given byte array representing the metadata block.
@@ -95,9 +92,7 @@ public final class SeekTable {
         }
     }
 
-
-
-    /*---- Methods ----*/
+    // Methods
 
     /**
      * Checks the state of this object and returns silently if all these criteria pass:
@@ -134,7 +129,6 @@ public final class SeekTable {
         }
     }
 
-
     /**
      * Writes all the points of this seek table as a metadata block to the specified output stream,
      * also indicating whether it is the last metadata block. (This does write the type and length
@@ -170,9 +164,7 @@ public final class SeekTable {
         }
     }
 
-
-
-    /*---- Helper structure ----*/
+    // Helper structure
 
     /**
      * Represents a seek point entry in a seek table. Mutable structure, not thread-safe.
@@ -204,7 +196,5 @@ public final class SeekTable {
          * If sampleOffset is -1, then this value is ignored.
          */
         public int frameSamples;
-
     }
-
 }
