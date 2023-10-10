@@ -9,9 +9,6 @@ package vavi.sound.sampled.flac.nayuki.spi;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.logging.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
@@ -20,7 +17,6 @@ import io.nayuki.flac.decode.ByteArrayFlacInput;
 import io.nayuki.flac.decode.FlacDecoder;
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
-import vavi.util.Debug;
 
 
 /**

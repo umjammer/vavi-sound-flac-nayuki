@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.AudioFileFormat;
@@ -26,7 +25,6 @@ import javax.sound.sampled.spi.AudioFileReader;
 
 import io.nayuki.flac.common.StreamInfo;
 import io.nayuki.flac.decode.AbstractFlacLowLevelInput;
-import io.nayuki.flac.decode.ByteArrayFlacInput;
 import io.nayuki.flac.decode.DataFormatException;
 import io.nayuki.flac.decode.FlacDecoder;
 import vavi.util.Debug;
