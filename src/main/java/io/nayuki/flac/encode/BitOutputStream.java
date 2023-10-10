@@ -45,7 +45,7 @@ public final class BitOutputStream implements AutoCloseable {
     // Current state of the CRC calculations.
     /** Always a uint8 value. */
     private int crc8;
-    /**/ Always a uint16 value. */
+    /** Always a uint16 value. */
     private int crc16;
 
     // Constructors

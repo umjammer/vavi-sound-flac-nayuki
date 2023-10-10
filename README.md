@@ -25,4 +25,4 @@ Pure Java FLAC decoder (Java Sound SPI) powered by [FLAC-library-Java](https://g
 
 ## TODO
 
- * java sound spi
+ * ~~java sound spi~~
