@@ -96,7 +96,7 @@ import io.nayuki.flac.decode.SeekableFileFlacInput;
  */
 public final class ShowFlacFileStats {
 
-    /*---- Main application function ----*/
+//#region Main application function
 
     public static void main(String[] args) throws IOException {
         // Handle command line arguments
@@ -151,9 +151,9 @@ public final class ShowFlacFileStats {
             printStereoModeGraph(channelAssignments);
     }
 
+//#endregion
 
-
-    /*---- Statistics-processing functions ----*/
+//#region Statistics-processing functions
 
     private static void printBlockSizeHistogram(List<Integer> blockSizes) {
         Map<Integer, Integer> blockSizeCounts = new TreeMap<>();
@@ -238,9 +238,9 @@ public final class ShowFlacFileStats {
         printNormalizedBarGraph("Stereo coding modes", stereoModeLabels, stereoModeValues);
     }
 
+//#endregion
 
-
-    /*---- Utility functions ----*/
+//#region Utility functions
 
     private static void printNormalizedBarGraph(String heading, List<String> labels, List<Double> values) {
         Objects.requireNonNull(heading);
@@ -274,4 +274,5 @@ public final class ShowFlacFileStats {
         System.out.println();
     }
 
+//#endregion
 }
