@@ -24,6 +24,7 @@ package io.nayuki.flac.common;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Objects;
 
 import io.nayuki.flac.decode.ByteArrayFlacInput;
@@ -302,5 +303,20 @@ public final class StreamInfo {
             }
         }
         return hasher.digest();
+    }
+
+    @Override
+    public String toString() {
+        return "StreamInfo{" +
+                "minBlockSize=" + minBlockSize +
+                ", maxBlockSize=" + maxBlockSize +
+                ", minFrameSize=" + minFrameSize +
+                ", maxFrameSize=" + maxFrameSize +
+                ", sampleRate=" + sampleRate +
+                ", numChannels=" + numChannels +
+                ", sampleDepth=" + sampleDepth +
+                ", numSamples=" + numSamples +
+                ", md5Hash=" + Arrays.toString(md5Hash) +
+                '}';
     }
 }
