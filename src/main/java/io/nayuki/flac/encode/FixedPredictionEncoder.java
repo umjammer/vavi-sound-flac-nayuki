@@ -25,14 +25,17 @@ import java.io.IOException;
 import java.util.Objects;
 
 
-/*
- * Under the fixed prediction coding mode of some order, this provides size calculations on and bitstream encoding of audio sample data.
+/**
+ * Under the fixed prediction coding mode of some order,
+ * this provides size calculations on and bitstream encoding of audio sample data.
  */
 final class FixedPredictionEncoder extends SubframeEncoder {
 
-    // Computes the best way to encode the given values under the fixed prediction coding mode of the given order,
-    // returning a size plus a new encoder object associated with the input arguments. The maxRiceOrder argument
-    // is used by the Rice encoder to estimate the size of coding the residual signal.
+    /**
+     * Computes the best way to encode the given values under the fixed prediction coding mode of the given order,
+     * returning a size plus a new encoder object associated with the input arguments. The maxRiceOrder argument
+     * is used by the Rice encoder to estimate the size of coding the residual signal.
+     */
     public static SizeEstimate<SubframeEncoder> computeBest(long[] samples, int shift, int depth, int order, int maxRiceOrder) {
         FixedPredictionEncoder enc = new FixedPredictionEncoder(samples, shift, depth, order);
         samples = LinearPredictiveEncoder.shiftRight(samples, shift);
@@ -43,10 +46,8 @@ final class FixedPredictionEncoder extends SubframeEncoder {
         return new SizeEstimate<>(size, enc);
     }
 
-
     private final int order;
     public int riceOrder;
-
 
     public FixedPredictionEncoder(long[] samples, int shift, int depth, int order) {
         super(shift, depth);
@@ -54,7 +55,6 @@ final class FixedPredictionEncoder extends SubframeEncoder {
             throw new IllegalArgumentException();
         this.order = order;
     }
-
 
     @Override
     public void encode(long[] samples, BitOutputStream out) throws IOException {
@@ -72,8 +72,7 @@ final class FixedPredictionEncoder extends SubframeEncoder {
         RiceEncoder.encode(samples, order, riceOrder, out);
     }
 
-
-    // The linear predictive coding (LPC) coefficients for fixed prediction of orders 0 to 4 (inclusive).
+    /** The linear predictive coding (LPC) coefficients for fixed prediction of orders 0 to 4 (inclusive). */
     private static final int[][] COEFFICIENTS = {
             {},
             {1},
@@ -81,5 +80,4 @@ final class FixedPredictionEncoder extends SubframeEncoder {
             {3, -3, 1},
             {4, -6, 4, -1},
     };
-
 }

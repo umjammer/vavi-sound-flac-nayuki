@@ -31,10 +31,12 @@ import java.io.IOException;
  */
 final class ConstantEncoder extends SubframeEncoder {
 
-    // Computes the best way to encode the given values under the constant coding mode,
-    // returning an exact size plus a new encoder object associated with the input arguments.
-    // However if the sample data is non-constant then null is returned instead,
-    // to indicate that the data is impossible to represent in this mode.
+    /**
+     * Computes the best way to encode the given values under the constant coding mode,
+     * returning an exact size plus a new encoder object associated with the input arguments.
+     * However if the sample data is non-constant then null is returned instead,
+     * to indicate that the data is impossible to represent in this mode.
+     */
     public static SizeEstimate<SubframeEncoder> computeBest(long[] samples, int shift, int depth) {
         if (!isConstant(samples))
             return null;
@@ -43,17 +45,17 @@ final class ConstantEncoder extends SubframeEncoder {
         return new SizeEstimate<>(size, enc);
     }
 
-
-    // Constructs a constant encoder for the given data, right shift, and sample depth.
+    /** Constructs a constant encoder for the given data, right shift, and sample depth. */
     public ConstantEncoder(long[] samples, int shift, int depth) {
         super(shift, depth);
     }
 
-
-    // Encodes the given vector of audio sample data to the given bit output stream using
-    // the encoding method (and the superclass fields sampleShift and sampleDepth).
-    // This requires the data array to have the same values (but not necessarily
-    // the same object reference) as the array that was passed to the constructor.
+    /**
+     * Encodes the given vector of audio sample data to the given bit output stream using
+     * the encoding method (and the superclass fields sampleShift and sampleDepth).
+     * This requires the data array to have the same values (but not necessarily
+     * the same object reference) as the array that was passed to the constructor.
+     */
     @Override
     public void encode(long[] samples, BitOutputStream out) throws IOException {
         if (!isConstant(samples))
@@ -64,8 +66,7 @@ final class ConstantEncoder extends SubframeEncoder {
         writeRawSample(samples[0] >> sampleShift, out);
     }
 
-
-    // Returns true iff the set of unique values in the array has size exactly 1. Pure function.
+    /** Returns true iff the set of unique values in the array has size exactly 1. Pure function. */
     private static boolean isConstant(long[] data) {
         if (data.length == 0)
             return false;
@@ -76,5 +77,4 @@ final class ConstantEncoder extends SubframeEncoder {
         }
         return true;
     }
-
 }

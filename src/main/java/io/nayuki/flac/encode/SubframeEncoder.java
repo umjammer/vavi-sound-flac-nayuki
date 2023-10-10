@@ -25,15 +25,18 @@ import java.io.IOException;
 import java.util.Objects;
 
 
-/*
- * Calculates/estimates the encoded size of a subframe of audio sample data, and also performs the encoding to an output stream.
+/**
+ * Calculates/estimates the encoded size of a subframe of audio sample data,
+ * and also performs the encoding to an output stream.
  */
 public abstract class SubframeEncoder {
 
-    /*---- Static functions ----*/
+    // Static functions
 
-    // Computes/estimates the best way to encode the given vector of audio sample data at the given sample depth under
-    // the given search criteria, returning a size estimate plus a new encoder object associated with that size.
+    /**
+     * Computes/estimates the best way to encode the given vector of audio sample data at the given sample depth under
+     * the given search criteria, returning a size estimate plus a new encoder object associated with that size.
+     */
     public static SizeEstimate<SubframeEncoder> computeBest(long[] samples, int sampleDepth, SearchOptions opt) {
         // Check arguments
         Objects.requireNonNull(samples);
@@ -76,11 +79,12 @@ public abstract class SubframeEncoder {
         return result;
     }
 
-
-    // Looks at each value in the array and computes the minimum number of trailing binary zeros
-    // among all the elements. For example, computedwastedBits({0b10, 0b10010, 0b1100}) = 1.
-    // If there are no elements or every value is zero (the former actually implies the latter), then
-    // the return value is 0. This is because every zero value has an infinite number of trailing zeros.
+    /**
+     * Looks at each value in the array and computes the minimum number of trailing binary zeros
+     * among all the elements. For example, computedwastedBits({0b10, 0b10010, 0b1100}) = 1.
+     * If there are no elements or every value is zero (the former actually implies the latter), then
+     * the return value is 0. This is because every zero value has an infinite number of trailing zeros.
+     */
     private static int computeWastedBits(long[] data) {
         Objects.requireNonNull(data);
         long accumulator = 0;
@@ -95,19 +99,20 @@ public abstract class SubframeEncoder {
         }
     }
 
+    // Instance members
 
+    /** Number of bits to shift each sample right by. In the range [0, sampleDepth]. */
+    protected final int sampleShift;
+    /** Stipulate that each audio sample fits in a signed integer of this width. In the range [1, 33]. */
+    protected final int sampleDepth;
 
-    /*---- Instance members ----*/
-
-    protected final int sampleShift;  // Number of bits to shift each sample right by. In the range [0, sampleDepth].
-    protected final int sampleDepth;  // Stipulate that each audio sample fits in a signed integer of this width. In the range [1, 33].
-
-
-    // Constructs a subframe encoder on some data array with the given right shift (wasted bits) and sample depth.
-    // Note that every element of the array must fit in a signed depth-bit integer and have at least 'shift' trailing binary zeros.
-    // After the encoder object is created and when encode() is called, it must receive the same array length and values (but the object reference can be different).
-    // Subframe encoders should not retain a reference to the sample data array because the higher-level encoder may request and
-    // keep many size estimates coupled with encoder objects, but only utilize a small number of encoder objects in the end.
+    /**
+     * Constructs a subframe encoder on some data array with the given right shift (wasted bits) and sample depth.
+     * Note that every element of the array must fit in a signed depth-bit integer and have at least 'shift' trailing binary zeros.
+     * After the encoder object is created and when encode() is called, it must receive the same array length and values (but the object reference can be different).
+     * Subframe encoders should not retain a reference to the sample data array because the higher-level encoder may request and
+     * keep many size estimates coupled with encoder objects, but only utilize a small number of encoder objects in the end.
+     */
     protected SubframeEncoder(int shift, int depth) {
         if (depth < 1 || depth > 33 || shift < 0 || shift > depth)
             throw new IllegalArgumentException();
@@ -115,16 +120,18 @@ public abstract class SubframeEncoder {
         sampleDepth = depth;
     }
 
-
-    // Encodes the given vector of audio sample data to the given bit output stream
-    // using the current encoding method (dictated by subclasses and field values).
-    // This requires the data array to have the same values (but not necessarily be the same object reference)
-    // as the array that was passed to the constructor when this encoder object was created.
+    /**
+     * Encodes the given vector of audio sample data to the given bit output stream
+     * using the current encoding method (dictated by subclasses and field values).
+     * This requires the data array to have the same values (but not necessarily be the same object reference)
+     * as the array that was passed to the constructor when this encoder object was created.
+     */
     public abstract void encode(long[] samples, BitOutputStream out) throws IOException;
 
-
-    // Writes the subframe header to the given output stream, based on the given
-    // type code (uint6) and this object's sampleShift field (a.k.a. wasted bits per sample).
+    /**
+     * Writes the subframe header to the given output stream, based on the given
+     * type code (uint6) and this object's sampleShift field (a.k.a. wasted bits per sample).
+     */
     protected final void writeTypeAndShift(int type, BitOutputStream out) throws IOException {
         // Check arguments
         if ((type >>> 6) != 0)
@@ -146,9 +153,10 @@ public abstract class SubframeEncoder {
         }
     }
 
-
-    // Writes the given value to the output stream as a signed (sampleDepth-sampleShift) bit integer.
-    // Note that the value to being written is equal to the raw sample value shifted right by sampleShift.
+    /**
+     * Writes the given value to the output stream as a signed (sampleDepth-sampleShift) bit integer.
+     * Note that the value to being written is equal to the raw sample value shifted right by sampleShift.
+     */
     protected final void writeRawSample(long val, BitOutputStream out) throws IOException {
         int width = sampleDepth - sampleShift;
         if (width < 1 || width > 33)
@@ -164,15 +172,15 @@ public abstract class SubframeEncoder {
         }
     }
 
-
-
     // Helper structure
 
-    // Represents options for how to search the encoding parameters for a subframe. It is used directly by
-    // SubframeEncoder.computeBest() and indirectly by its sub-calls. Objects of this class are immutable.
+    /**
+     * Represents options for how to search the encoding parameters for a subframe. It is used directly by
+     * SubframeEncoder.computeBest() and indirectly by its sub-calls. Objects of this class are immutable.
+     */
     public static final class SearchOptions {
 
-        /*-- Fields --*/
+        // Fields
 
         // The range of orders to test for fixed prediction mode, possibly none.
         // The values satisfy (minFixedOrder = maxFixedOrder = -1) || (0 <= minFixedOrder <= maxFixedOrder <= 4).
@@ -185,19 +193,24 @@ public abstract class SubframeEncoder {
         public final int minLpcOrder;
         public final int maxLpcOrder;
 
-        // How many LPC coefficient variables to try rounding both up and down.
-        // In the range [0, 30]. Note that each increase by one will double the search time!
+        /**
+         * How many LPC coefficient variables to try rounding both up and down.
+         * In the range [0, 30]. Note that each increase by one will double the search time!
+         */
         public final int lpcRoundVariables;
 
-        // The maximum partition order used in Rice coding. The minimum is not configurable and always 0.
-        // In the range [0, 15]. Note that the FLAC subset format requires maxRiceOrder <= 8.
+        /**
+         * The maximum partition order used in Rice coding. The minimum is not configurable and always 0.
+         * In the range [0, 15]. Note that the FLAC subset format requires maxRiceOrder <= 8.
+         */
         public final int maxRiceOrder;
 
+        // Constructors
 
-        /*-- Constructors --*/
-
-        // Constructs a search options object based on the given values,
-        // throwing an IllegalArgumentException if and only if they are nonsensical.
+        /**
+         * Constructs a search options object based on the given values,
+         * throwing an IllegalArgumentException if and only if they are nonsensical.
+         */
         public SearchOptions(int minFixedOrder, int maxFixedOrder, int minLpcOrder, int maxLpcOrder, int lpcRoundVars, int maxRiceOrder) {
             // Check argument ranges
             if ((minFixedOrder != -1 || maxFixedOrder != -1) &&
@@ -220,8 +233,7 @@ public abstract class SubframeEncoder {
             this.maxRiceOrder = maxRiceOrder;
         }
 
-
-        /*-- Constants for recommended defaults --*/
+        // Constants for recommended defaults
 
         // Note that these constants are for convenience only, and offer little promises in terms of API stability.
         // For example, there is no expectation that the set of search option names as a whole,
@@ -241,7 +253,5 @@ public abstract class SubframeEncoder {
         public static final SearchOptions LAX_MEDIUM = new SearchOptions(0, 1, 2, 22, 0, 15);
         public static final SearchOptions LAX_BEST = new SearchOptions(0, 1, 2, 32, 0, 15);
         public static final SearchOptions LAX_INSANE = new SearchOptions(0, 1, 2, 32, 4, 15);
-
     }
-
 }

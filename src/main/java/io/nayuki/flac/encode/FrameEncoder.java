@@ -28,13 +28,13 @@ import java.util.Objects;
 import io.nayuki.flac.common.FrameInfo;
 
 
-/*
+/**
  * Calculates/estimates the encoded size of a frame of audio sample data
  * (including the frame header), and also performs the encoding to an output stream.
  */
 final class FrameEncoder {
 
-    /*---- Static functions ----*/
+    // Static functions
 
     public static SizeEstimate<FrameEncoder> computeBest(int sampleOffset, long[][] samples, int sampleDepth, int sampleRate, SubframeEncoder.SearchOptions opt) {
         FrameEncoder enc = new FrameEncoder(sampleOffset, samples, sampleDepth, sampleRate);
@@ -109,14 +109,10 @@ final class FrameEncoder {
         return new SizeEstimate<>(size, enc);
     }
 
-
-
     // Fields
 
     public FrameInfo metadata;
     private SubframeEncoder[] subEncoders;
-
-
 
     // Constructors
 
@@ -129,9 +125,7 @@ final class FrameEncoder {
         metadata.channelAssignment = samples.length - 1;
     }
 
-
-
-    /*---- Public methods ----*/
+    // Public methods
 
     public void encode(long[][] samples, BitOutputStream out) throws IOException {
         // Check arguments
@@ -171,5 +165,4 @@ final class FrameEncoder {
         out.alignToByte();
         out.writeInt(16, out.getCrc16());
     }
-
 }

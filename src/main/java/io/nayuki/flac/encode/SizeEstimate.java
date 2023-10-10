@@ -24,7 +24,7 @@ package io.nayuki.flac.encode;
 import java.util.Objects;
 
 
-/*
+/**
  * Pairs an integer with an arbitrary object. Immutable structure.
  */
 public final class SizeEstimate<E> {

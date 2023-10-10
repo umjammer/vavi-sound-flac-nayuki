@@ -26,16 +26,19 @@ import java.util.Arrays;
 import java.util.Objects;
 
 
-/*
- * Under the linear predictive coding (LPC) mode of some order, this provides size estimates on and bitstream encoding of audio sample data.
+/**
+ * Under the linear predictive coding (LPC) mode of some order,
+ * this provides size estimates on and bitstream encoding of audio sample data.
  */
 final class LinearPredictiveEncoder extends SubframeEncoder {
 
-    // Computes a good way to encode the given values under the linear predictive coding (LPC) mode of the given order,
-    // returning a size plus a new encoder object associated with the input arguments. This process of minimizing the size
-    // has an enormous search space, and it is impossible to guarantee the absolute optimal solution. The maxRiceOrder argument
-    // is used by the Rice encoder to estimate the size of coding the residual signal. The roundVars argument controls
-    // how many different coefficients are tested rounding both up and down, resulting in exponential time behavior.
+    /**
+     * Computes a good way to encode the given values under the linear predictive coding (LPC) mode of the given order,
+     * returning a size plus a new encoder object associated with the input arguments. This process of minimizing the size
+     * has an enormous search space, and it is impossible to guarantee the absolute optimal solution. The maxRiceOrder argument
+     * is used by the Rice encoder to estimate the size of coding the residual signal. The roundVars argument controls
+     * how many different coefficients are tested rounding both up and down, resulting in exponential time behavior.
+     */
     public static SizeEstimate<SubframeEncoder> computeBest(long[] samples, int shift, int depth, int order, int roundVars, FastDotProduct fdp, int maxRiceOrder) {
         // Check arguments
         if (order < 1 || order > 32)
@@ -88,14 +91,12 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
         return new SizeEstimate<>(bestSize, enc);
     }
 
-
     private final int order;
     private final double[] realCoefs;
     private int[] coefficients;
     private final int coefDepth;
     private final int coefShift;
     public int riceOrder;
-
 
     public LinearPredictiveEncoder(long[] samples, int shift, int depth, int order, FastDotProduct fdp) {
         super(shift, depth);
@@ -135,9 +136,10 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
         }
     }
 
-
-    // Solves an n * (n+1) augmented matrix (which modifies its values as a side effect),
-    // returning a new solution vector of length n.
+    /**
+     * Solves an n * (n+1) augmented matrix (which modifies its values as a side effect),
+     * returning a new solution vector of length n.
+     */
     private static double[] solveMatrix(double[][] mat) {
         // Gauss-Jordan elimination algorithm
         int rows = mat.length;
@@ -198,7 +200,6 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
         return result;
     }
 
-
     @Override
     public void encode(long[] samples, BitOutputStream out) throws IOException {
         Objects.requireNonNull(samples);
@@ -219,15 +220,15 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
         RiceEncoder.encode(samples, order, riceOrder, out);
     }
 
+    // Static helper functions
 
-
-    /*---- Static helper functions ----*/
-
-    // Applies linear prediction to data[coefs.length : data.length] so that newdata[i] =
-    // data[i] - ((data[i-1]*coefs[0] + data[i-2]*coefs[1] + ... + data[i-coefs.length]*coefs[coefs.length]) >> shift).
-    // By FLAC parameters, each data[i] must fit in a signed 33-bit integer, each coef must fit in signed int15, and coefs.length <= 32.
-    // When these preconditions are met, they guarantee the lack of arithmetic overflow in the computation and results,
-    // and each value written back to the data array fits in a signed int53.
+    /**
+     * Applies linear prediction to data[coefs.length : data.length] so that newdata[i] =
+     * data[i] - ((data[i-1]*coefs[0] + data[i-2]*coefs[1] + ... + data[i-coefs.length]*coefs[coefs.length]) >> shift).
+     * By FLAC parameters, each data[i] must fit in a signed 33-bit integer, each coef must fit in signed int15, and coefs.length <= 32.
+     * When these preconditions are met, they guarantee the lack of arithmetic overflow in the computation and results,
+     * and each value written back to the data array fits in a signed int53.
+     */
     static void applyLpc(long[] data, int[] coefs, int shift) {
         // Check arguments and arrays strictly
         Objects.requireNonNull(data);
@@ -257,8 +258,7 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
         }
     }
 
-
-    // Returns a new array where each result[i] = data[i] >> shift.
+    /** Returns a new array where each result[i] = data[i] >> shift. */
     static long[] shiftRight(long[] data, int shift) {
         Objects.requireNonNull(data);
         if (shift < 0 || shift > 63)
@@ -268,5 +268,4 @@ final class LinearPredictiveEncoder extends SubframeEncoder {
             result[i] = data[i] >> shift;
         return result;
     }
-
 }

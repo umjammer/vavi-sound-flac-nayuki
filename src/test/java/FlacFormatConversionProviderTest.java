@@ -5,7 +5,9 @@
  */
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,10 +22,12 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import vavi.sound.SoundUtil;
+import vavi.sound.sampled.flac.nayuki.spi.FlacAudioFileReader;
+import vavi.sound.sampled.flac.nayuki.spi.FlacEncoding;
+import vavi.sound.sampled.flac.nayuki.spi.FlacFormatConversionProvider;
 import vavi.util.Debug;
 import vavi.util.StringUtil;
 import vavi.util.properties.annotation.Property;
@@ -57,59 +61,60 @@ class FlacFormatConversionProviderTest {
     }
 
     static long time;
+    static final double volume;
 
     static {
         System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod", "org\\.tritonus\\.share\\.TDebug#out");
 
         time = System.getProperty("vavi.test", "").equals("ide") ? 1000 * 1000 : 9 * 1000;
+        volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
     }
 
     @Property
     String flac = "src/test/resources/test.flac";
 
-//    @Test
-//    @DisplayName("directly")
-//    void test0() throws Exception {
-//
-//        Path path = Paths.get(flac);
-//        AudioInputStream sourceAis = new FlacAudioFileReader().getAudioInputStream(new BufferedInputStream(Files.newInputStream(path)));
-//
-//        AudioFormat inAudioFormat = sourceAis.getFormat();
-//Debug.println("IN: " + inAudioFormat);
-//        AudioFormat outAudioFormat = new AudioFormat(
-//            inAudioFormat.getSampleRate(),
-//            16,
-//            inAudioFormat.getChannels(),
-//            true,
-//            false);
-//Debug.println("OUT: " + outAudioFormat);
-//
-//        assertTrue(AudioSystem.isConversionSupported(outAudioFormat, inAudioFormat));
-//
-//        AudioInputStream pcmAis = new FlacFormatConversionProvider().getAudioInputStream(outAudioFormat, sourceAis);
-//        DataLine.Info info = new DataLine.Info(SourceDataLine.class, pcmAis.getFormat());
-//        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
-//        line.open(pcmAis.getFormat());
-//        line.addLineListener(ev -> Debug.println(ev.getType()));
-//        line.start();
-//
-//        volume(line, .1d);
-//
-//        byte[] buf = new byte[1024];
-//        while (!later(time).come()) {
-//            int r = pcmAis.read(buf, 0, 1024);
-//            if (r < 0) {
-//                break;
-//            }
-//            line.write(buf, 0, r);
-//        }
-//        line.drain();
-//        line.stop();
-//        line.close();
-//    }
+    @Test
+    @DisplayName("directly")
+    void test0() throws Exception {
+
+        Path path = Paths.get(flac);
+        AudioInputStream sourceAis = new FlacAudioFileReader().getAudioInputStream(new BufferedInputStream(Files.newInputStream(path)));
+
+        AudioFormat inAudioFormat = sourceAis.getFormat();
+Debug.println("IN: " + inAudioFormat);
+        AudioFormat outAudioFormat = new AudioFormat(
+                inAudioFormat.getSampleRate(),
+                inAudioFormat.getSampleSizeInBits(),
+                inAudioFormat.getChannels(),
+                true,
+                false);
+Debug.println("OUT: " + outAudioFormat);
+
+        assertTrue(AudioSystem.isConversionSupported(outAudioFormat, inAudioFormat));
+
+        AudioInputStream pcmAis = new FlacFormatConversionProvider().getAudioInputStream(outAudioFormat, sourceAis);
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, pcmAis.getFormat());
+        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+        line.open(pcmAis.getFormat());
+        line.addLineListener(ev -> Debug.println(ev.getType()));
+        line.start();
+
+        volume(line, volume);
+
+        byte[] buf = new byte[1024];
+        while (!later(time).come()) {
+            int r = pcmAis.read(buf, 0, 1024);
+            if (r < 0) {
+                break;
+            }
+            line.write(buf, 0, r);
+        }
+        line.drain();
+        line.stop();
+        line.close();
+    }
 
     @Test
-    @Disabled
     @DisplayName("as spi")
     void test1() throws Exception {
 
@@ -135,7 +140,7 @@ Debug.println("OUT: " + outAudioFormat);
         line.addLineListener(ev -> Debug.println(ev.getType()));
         line.start();
 
-        volume(line, .1d);
+        volume(line, volume);
 
         byte[] buf = new byte[1024];
         while (!later(time).come()) {
@@ -150,24 +155,23 @@ Debug.println("OUT: " + outAudioFormat);
         line.close();
     }
 
-//    @Test
-//    @DisplayName("another input type 2")
-//    void test2() throws Exception {
-//        URL url = Paths.get(flac).toUri().toURL();
-//        AudioInputStream ais = AudioSystem.getAudioInputStream(url);
-//        assertEquals(FlacEncoding.FLAC, ais.getFormat().getEncoding());
-//    }
-//
-//    @Test
-//    @DisplayName("another input type 3")
-//    void test3() throws Exception {
-//        File file = Paths.get(flac).toFile();
-//        AudioInputStream ais = AudioSystem.getAudioInputStream(file);
-//        assertEquals(FlacEncoding.FLAC, ais.getFormat().getEncoding());
-//    }
+    @Test
+    @DisplayName("another input type 2")
+    void test2() throws Exception {
+        URL url = Paths.get(flac).toUri().toURL();
+        AudioInputStream ais = AudioSystem.getAudioInputStream(url);
+        assertEquals(FlacEncoding.FLAC, ais.getFormat().getEncoding());
+    }
 
     @Test
-    @Disabled
+    @DisplayName("another input type 3")
+    void test3() throws Exception {
+        File file = Paths.get(flac).toFile();
+        AudioInputStream ais = AudioSystem.getAudioInputStream(file);
+        assertEquals(FlacEncoding.FLAC, ais.getFormat().getEncoding());
+    }
+
+    @Test
     @DisplayName("when unsupported file coming")
     void test5() throws Exception {
         InputStream is = FlacFormatConversionProviderTest.class.getResourceAsStream("/test.caf");
@@ -181,7 +185,6 @@ Debug.println(e.getMessage());
     }
 
     @Test
-    @Disabled
     @DisplayName("clip")
     void test4() throws Exception {
 
@@ -196,7 +199,7 @@ clip.addLineListener(ev -> {
   cdl.countDown();
 });
         clip.open(AudioSystem.getAudioInputStream(new AudioFormat(44100, 16, 2, true, false), ais));
-SoundUtil.volume(clip, 0.1f);
+SoundUtil.volume(clip, volume);
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);

@@ -126,7 +126,6 @@ public final class DecodeFlacToWav {
         }
     }
 
-
     // Helper members for writing WAV files
 
     private static DataOutputStream out;
@@ -138,5 +137,4 @@ public final class DecodeFlacToWav {
     private static void writeLittleInt32(int x) throws IOException {
         out.writeInt(Integer.reverseBytes(x));
     }
-
 }

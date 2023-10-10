@@ -34,11 +34,9 @@ public class DataFormatException extends RuntimeException {
         super();
     }
 
-
     public DataFormatException(String msg) {
         super(msg);
     }
-
 
     public DataFormatException(String msg, Throwable cause) {
         super(msg, cause);

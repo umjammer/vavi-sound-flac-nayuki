@@ -56,7 +56,7 @@ public final class SeekableFlacPlayerGui {
     public static void main(String[] args) throws
             LineUnavailableException, IOException, InterruptedException {
 
-        /*-- Initialization code --*/
+        // Initialization code
 
         // Handle command line arguments
         if (args.length != 1) {
@@ -99,7 +99,7 @@ public final class SeekableFlacPlayerGui {
             }
         };
 
-        /*-- Audio player loop --*/
+        // Audio player loop
 
         // Decode and write audio data, handle seek requests, wait for seek when end of stream reached
         int bytesPerSample = streamInfo.sampleDepth / 8;
@@ -155,20 +155,17 @@ public final class SeekableFlacPlayerGui {
         }
     }
 
-
-
-    /*---- User interface classes ----*/
+    // User interface classes
 
     private static final class AudioPlayerGui {
 
-        /*-- Fields --*/
+        // Fields
 
         public Listener listener;
         private JSlider slider;
         private BasicSliderUI sliderUi;
 
-
-        /*-- Constructor --*/
+        // Constructor
 
         public AudioPlayerGui(String windowTitle) {
             // Create and configure slider
@@ -209,8 +206,7 @@ public final class SeekableFlacPlayerGui {
             frame.setVisible(true);
         }
 
-
-        /*-- Methods --*/
+        // Methods
 
         public void setPosition(double t) {
             if (Double.isNaN(t))
@@ -222,22 +218,17 @@ public final class SeekableFlacPlayerGui {
             });
         }
 
-
         private void moveSlider(MouseEvent ev) {
             slider.setValue(sliderUi.valueForXPosition(ev.getX()));
         }
 
-
-        /*-- Helper interface --*/
+        // Helper interface
 
         public interface Listener {
 
             void seekRequested(double t);  // 0.0 <= t <= 1.0
 
             void windowClosing();
-
         }
-
     }
-
 }

@@ -147,8 +147,7 @@ public final class EncodeWavToFlac {
         }
     }
 
-
-    // Reads len bytes from the given stream and interprets them as a UTF-8 string.
+    /** Reads len bytes from the given stream and interprets them as a UTF-8 string. */
     private static String readString(InputStream in, int len) throws IOException {
         byte[] temp = new byte[len];
         for (int i = 0; i < temp.length; i++) {
@@ -160,9 +159,10 @@ public final class EncodeWavToFlac {
         return new String(temp, StandardCharsets.UTF_8);
     }
 
-
-    // Reads n bytes (0 <= n <= 4) from the given stream, interpreting
-    // them as an unsigned integer encoded in little endian.
+    /**
+     * Reads n bytes (0 <= n <= 4) from the given stream, interpreting
+     * them as an unsigned integer encoded in little endian.
+     */
     private static int readLittleUint(InputStream in, int n) throws IOException {
         int result = 0;
         for (int i = 0; i < n; i++) {
@@ -173,5 +173,4 @@ public final class EncodeWavToFlac {
         }
         return result;
     }
-
 }

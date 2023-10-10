@@ -22,11 +22,14 @@
 package io.nayuki.flac.encode;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import io.nayuki.flac.common.StreamInfo;
 
 
 public final class FlacEncoder {
+
+    private static final Logger logger = Logger.getLogger(FlacEncoder.class.getName());
 
     public FlacEncoder(StreamInfo info, int[][] samples, int blockSize, SubframeEncoder.SearchOptions opt, BitOutputStream out) throws IOException {
         info.minBlockSize = blockSize;
@@ -35,7 +38,7 @@ public final class FlacEncoder {
         info.maxFrameSize = 0;
 
         for (int i = 0, pos = 0; pos < samples[0].length; i++) {
-            System.err.printf("frame=%d  position=%d  %.2f%%%n", i, pos, 100.0 * pos / samples[0].length);
+logger.finer(String.format("frame=%d  position=%d  %.2f%%%n", i, pos, 100.0 * pos / samples[0].length));
             int n = Math.min(samples[0].length - pos, blockSize);
             long[][] subsamples = getRange(samples, pos, n);
             FrameEncoder enc = FrameEncoder.computeBest(pos, subsamples, info.sampleDepth, info.sampleRate, opt).encoder;
@@ -52,8 +55,7 @@ public final class FlacEncoder {
         }
     }
 
-
-    // Returns the subrange array[ : ][off : off + len] upcasted to long.
+    /** Returns the subrange array[ : ][off : off + len] upcasted to long. */
     private static long[][] getRange(int[][] array, int off, int len) {
         long[][] result = new long[array.length][len];
         for (int i = 0; i < array.length; i++) {
@@ -64,5 +66,4 @@ public final class FlacEncoder {
         }
         return result;
     }
-
 }

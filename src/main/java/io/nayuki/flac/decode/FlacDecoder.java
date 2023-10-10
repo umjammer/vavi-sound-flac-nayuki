@@ -104,11 +104,13 @@ public final class FlacDecoder implements AutoCloseable {
 
     // Methods
 
-    // Reads, handles, and returns the next metadata block. Returns a pair (Integer type, byte[] data) if the
-    // next metadata block exists, otherwise returns null if the final metadata block was previously read.
-    // In addition to reading and returning data, this method also updates the internal state
-    // of this object to reflect the new data seen, and throws exceptions for situations such as
-    // not starting with a stream info metadata block or encountering duplicates of certain blocks.
+    /**
+     * Reads, handles, and returns the next metadata block. Returns a pair (Integer type, byte[] data) if the
+     * next metadata block exists, otherwise returns null if the final metadata block was previously read.
+     * In addition to reading and returning data, this method also updates the internal state
+     * of this object to reflect the new data seen, and throws exceptions for situations such as
+     * not starting with a stream info metadata block or encountering duplicates of certain blocks.
+     */
     public Object[] readAndHandleMetadataBlock() throws IOException {
         if (metadataEndPos != -1)
             return null;  // All metadata already consumed
@@ -142,11 +144,12 @@ public final class FlacDecoder implements AutoCloseable {
         return new Object[] {type, data};
     }
 
-
-    // Reads and decodes the next block of audio samples into the given buffer,
-    // returning the number of samples in the block. The return value is 0 if the read
-    // started at the end of stream, or a number in the range [1, 65536] for a valid block.
-    // All metadata blocks must be read before starting to read audio blocks.
+    /**
+     * Reads and decodes the next block of audio samples into the given buffer,
+     * returning the number of samples in the block. The return value is 0 if the read
+     * started at the end of stream, or a number in the range [1, 65536] for a valid block.
+     * All metadata blocks must be read before starting to read audio blocks.
+     */
     public int readAudioBlock(int[][] samples, int off) throws IOException {
         if (frameDec == null)
             throw new IllegalStateException("Metadata blocks not fully consumed yet");
@@ -157,13 +160,14 @@ public final class FlacDecoder implements AutoCloseable {
             return frame.blockSize;  // In the range [1, 65536]
     }
 
-
-    // Seeks to the given sample position and reads audio samples into the given buffer,
-    // returning the number of samples filled. If audio data is available then the return value
-    // is at least 1; otherwise 0 is returned to indicate the end of stream. Note that the
-    // sample position can land in the middle of a FLAC block and will still behave correctly.
-    // In theory this method subsumes the functionality of readAudioBlock(), but seeking can be
-    // an expensive operation so readAudioBlock() should be used for ordinary contiguous streaming.
+    /**
+     * Seeks to the given sample position and reads audio samples into the given buffer,
+     * returning the number of samples filled. If audio data is available then the return value
+     * is at least 1; otherwise 0 is returned to indicate the end of stream. Note that the
+     * sample position can land in the middle of a FLAC block and will still behave correctly.
+     * In theory this method subsumes the functionality of readAudioBlock(), but seeking can be
+     * an expensive operation so readAudioBlock() should be used for ordinary contiguous streaming.
+     */
     public int seekAndReadAudioBlock(long pos, int[][] samples, int off) throws IOException {
         if (frameDec == null)
             throw new IllegalStateException("Metadata blocks not fully consumed yet");
@@ -191,7 +195,6 @@ public final class FlacDecoder implements AutoCloseable {
         }
     }
 
-
     private long[] getBestSeekPoint(long pos) {
         long samplePos = 0;
         long filePos = 0;
@@ -207,13 +210,14 @@ public final class FlacDecoder implements AutoCloseable {
         return new long[] {samplePos, filePos};
     }
 
-
-    // Returns a pair (sample offset, file position) such sampleOffset <= pos and abs(sampleOffset - pos)
-    // is a relatively small number compared to the total number of samples in the audio file.
-    // This method works by skipping to arbitrary places in the file, finding a sync sequence,
-    // decoding the frame header, examining the audio position stored in the frame, and possibly deciding
-    // to skip to other places and retrying. This changes the state of the input streams as a side effect.
-    // There is a small chance of finding a valid-looking frame header but causing erroneous decoding later.
+    /**
+     * Returns a pair (sample offset, file position) such sampleOffset <= pos and abs(sampleOffset - pos)
+     * is a relatively small number compared to the total number of samples in the audio file.
+     * This method works by skipping to arbitrary places in the file, finding a sync sequence,
+     * decoding the frame header, examining the audio position stored in the frame, and possibly deciding
+     * to skip to other places and retrying. This changes the state of the input streams as a side effect.
+     * There is a small chance of finding a valid-looking frame header but causing erroneous decoding later.
+     */
     private long[] seekBySyncAndDecode(long pos) throws IOException {
         long start = metadataEndPos;
         long end = input.getLength();
@@ -228,10 +232,11 @@ public final class FlacDecoder implements AutoCloseable {
         return getNextFrameOffsets(start);
     }
 
-
-    // Returns a pair (sample offset, file position) describing the next frame found starting
-    // at the given file offset, or null if no frame is found before the end of stream.
-    // This changes the state of the input streams as a side effect.
+    /**
+     * Returns a pair (sample offset, file position) describing the next frame found starting
+     * at the given file offset, or null if no frame is found before the end of stream.
+     * This changes the state of the input streams as a side effect.
+     */
     private long[] getNextFrameOffsets(long filePos) throws IOException {
         if (filePos < metadataEndPos || filePos > input.getLength())
             throw new IllegalArgumentException("File position out of bounds");
@@ -267,8 +272,7 @@ public final class FlacDecoder implements AutoCloseable {
         }
     }
 
-
-    // Calculates the sample offset of the given frame, automatically handling the constant-block-size case.
+    /** Calculates the sample offset of the given frame, automatically handling the constant-block-size case. */
     private long getSampleOffset(FrameInfo frame) {
         Objects.requireNonNull(frame);
         if (frame.sampleOffset != -1)
@@ -279,9 +283,10 @@ public final class FlacDecoder implements AutoCloseable {
             throw new AssertionError();
     }
 
-
-    // Closes the underlying input streams and discards object data.
-    // This decoder object becomes invalid for any method calls or field usages.
+    /**
+     * Closes the underlying input streams and discards object data.
+     * This decoder object becomes invalid for any method calls or field usages.
+     */
     @Override
     public void close() throws IOException {
         if (input != null) {
@@ -292,5 +297,4 @@ public final class FlacDecoder implements AutoCloseable {
             input = null;
         }
     }
-
 }

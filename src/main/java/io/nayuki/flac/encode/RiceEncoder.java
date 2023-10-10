@@ -25,17 +25,20 @@ import java.io.IOException;
 import java.util.Objects;
 
 
-/*
- * Calculates/estimates the encoded size of a vector of residuals, and also performs the encoding to an output stream.
+/**
+ * Calculates/estimates the encoded size of a vector of residuals,
+ * and also performs the encoding to an output stream.
  */
 final class RiceEncoder {
 
-    /*---- Functions for size calculation ---*/
+    // Functions for size calculation
 
-    // Calculates the best number of bits and partition order needed to encode the values data[warmup : data.length].
-    // Each value in that subrange of data must fit in a signed 53-bit integer. The result is packed in the form
-    // ((bestSize << 4) | bestOrder), where bestSize is an unsigned integer and bestOrder is an uint4.
-    // Note that the partition orders searched, and hence the resulting bestOrder, are in the range [0, maxPartOrder].
+    /**
+     * Calculates the best number of bits and partition order needed to encode the values data[warmup : data.length].
+     * Each value in that subrange of data must fit in a signed 53-bit integer. The result is packed in the form
+     * ((bestSize << 4) | bestOrder), where bestSize is an unsigned integer and bestOrder is an uint4.
+     * Note that the partition orders searched, and hence the resulting bestOrder, are in the range [0, maxPartOrder].
+     */
     public static long computeBestSizeAndOrder(long[] data, int warmup, int maxPartOrder) {
         // Check arguments strictly
         Objects.requireNonNull(data);
@@ -101,9 +104,10 @@ final class RiceEncoder {
         return bestSize << 4 | bestOrder;
     }
 
-
-    // Calculates the number of bits needed to encode the sequence of values
-    // data[start : end] with an optimally chosen Rice parameter.
+    /**
+     * Calculates the number of bits needed to encode the sequence of values
+     * data[start : end] with an optimally chosen Rice parameter.
+     */
     private static long computeBestSizeAndParam(long[] data, int start, int end) {
         assert data != null && 0 <= start && start <= end && end <= data.length;
 
@@ -148,12 +152,12 @@ final class RiceEncoder {
         return bestSize << 6 | bestParam;
     }
 
+    // Functions for encoding data
 
-
-    /*---- Functions for encoding data ---*/
-
-    // Encodes the sequence of values data[warmup : data.length] with an appropriately chosen order and Rice parameters.
-    // Each value in data must fit in a signed 53-bit integer.
+    /**
+     * Encodes the sequence of values data[warmup : data.length] with an appropriately chosen order and Rice parameters.
+     * Each value in data must fit in a signed 53-bit integer.
+     */
     public static void encode(long[] data, int warmup, int order, BitOutputStream out) throws IOException {
         // Check arguments strictly
         Objects.requireNonNull(data);
@@ -181,8 +185,7 @@ final class RiceEncoder {
         }
     }
 
-
-    // Encodes the sequence of values data[start : end] with the given Rice parameter.
+    /** Encodes the sequence of values data[start : end] with the given Rice parameter. */
     private static void encode(long[] data, int start, int end, int param, BitOutputStream out) throws IOException {
         assert 0 <= param && param <= 31 && data != null && out != null;
         assert 0 <= start && start <= end && end <= data.length;
@@ -200,7 +203,6 @@ final class RiceEncoder {
         }
     }
 
-
     private static void writeRiceSignedInt(long val, int param, BitOutputStream out) throws IOException {
         assert 0 <= param && param <= 31 && out != null;
         assert (val >> 52) == 0 || (val >> 52) == -1;  // Fits in a signed int53
@@ -212,5 +214,4 @@ final class RiceEncoder {
         out.writeInt(1, 1);
         out.writeInt(param, (int) unsigned);
     }
-
 }

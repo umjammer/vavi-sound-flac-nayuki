@@ -33,20 +33,24 @@ public final class BitOutputStream implements AutoCloseable {
 
     // Fields
 
-    private OutputStream out;  // The underlying byte-based output stream to write to.
-    private long bitBuffer;  // Only the bottom bitBufferLen bits are valid; the top bits are garbage.
-    private int bitBufferLen;  // Always in the range [0, 64].
-    private long byteCount;  // Number of bytes written since the start of stream.
+    /** The underlying byte-based output stream to write to. */
+    private OutputStream out;
+    /** Only the bottom bitBufferLen bits are valid; the top bits are garbage. */
+    private long bitBuffer;
+    /** Always in the range [0, 64]. */
+    private int bitBufferLen;
+    /** Number of bytes written since the start of stream. */
+    private long byteCount;
 
     // Current state of the CRC calculations.
-    private int crc8;  // Always a uint8 value.
-    private int crc16;  // Always a uint16 value.
-
-
+    /** Always a uint8 value. */
+    private int crc8;
+    /**/ Always a uint16 value. */
+    private int crc16;
 
     // Constructors
 
-    // Constructs a FLAC-oriented bit output stream from the given byte-based output stream.
+    /** Constructs a FLAC-oriented bit output stream from the given byte-based output stream. */
     public BitOutputStream(OutputStream out) throws IOException {
         this.out = Objects.requireNonNull(out);
         bitBuffer = 0;
@@ -55,29 +59,27 @@ public final class BitOutputStream implements AutoCloseable {
         resetCrcs();
     }
 
-
-
     // Methods
 
-    /*-- Bit position --*/
+    // Bit position
 
-    // Writes between 0 and 7 zero bits, to align the current bit position to a byte boundary.
+    /** Writes between 0 and 7 zero bits, to align the current bit position to a byte boundary. */
     public void alignToByte() throws IOException {
         writeInt((64 - bitBufferLen) % 8, 0);
     }
 
-
-    // Either returns silently or throws an exception.
+    /** Either returns silently or throws an exception. */
     private void checkByteAligned() {
         if (bitBufferLen % 8 != 0)
             throw new IllegalStateException("Not at a byte boundary");
     }
 
+    // Writing bitwise integers
 
-    /*-- Writing bitwise integers --*/
-
-    // Writes the lowest n bits of the given value to this bit output stream.
-    // This doesn't care whether val represents a signed or unsigned integer.
+    /**
+     * Writes the lowest n bits of the given value to this bit output stream.
+     * This doesn't care whether val represents a signed or unsigned integer.
+     */
     public void writeInt(int n, int val) throws IOException {
         if (n < 0 || n > 32)
             throw new IllegalArgumentException();
@@ -92,9 +94,10 @@ public final class BitOutputStream implements AutoCloseable {
         assert 0 <= bitBufferLen && bitBufferLen <= 64;
     }
 
-
-    // Writes out whole bytes from the bit buffer to the underlying stream. After this is done,
-    // only 0 to 7 bits remain in the bit buffer. Also updates the CRCs on each byte written.
+    /**
+     * Writes out whole bytes from the bit buffer to the underlying stream. After this is done,
+     * only 0 to 7 bits remain in the bit buffer. Also updates the CRCs on each byte written.
+     */
     public void flush() throws IOException {
         while (bitBufferLen >= 8) {
             bitBufferLen -= 8;
@@ -116,19 +119,19 @@ public final class BitOutputStream implements AutoCloseable {
         out.flush();
     }
 
+    // CRC calculations
 
-    /*-- CRC calculations --*/
-
-    // Marks the current position (which must be byte-aligned) as the start of both CRC calculations.
+    /** Marks the current position (which must be byte-aligned) as the start of both CRC calculations. */
     public void resetCrcs() throws IOException {
         flush();
         crc8 = 0;
         crc16 = 0;
     }
 
-
-    // Returns the CRC-8 hash of all the bytes written since the last call to resetCrcs()
-    // (or from the beginning of stream if reset was never called).
+    /**
+     * Returns the CRC-8 hash of all the bytes written since the last call to resetCrcs()
+     * (or from the beginning of stream if reset was never called).
+     */
     public int getCrc8() throws IOException {
         checkByteAligned();
         flush();
@@ -137,9 +140,10 @@ public final class BitOutputStream implements AutoCloseable {
         return crc8;
     }
 
-
-    // Returns the CRC-16 hash of all the bytes written since the last call to resetCrcs()
-    // (or from the beginning of stream if reset was never called).
+    /**
+     * Returns the CRC-16 hash of all the bytes written since the last call to resetCrcs()
+     * (or from the beginning of stream if reset was never called).
+     */
     public int getCrc16() throws IOException {
         checkByteAligned();
         flush();
@@ -148,20 +152,20 @@ public final class BitOutputStream implements AutoCloseable {
         return crc16;
     }
 
+    // Miscellaneous
 
-    /*-- Miscellaneous --*/
-
-    // Returns the number of bytes written since the start of the stream.
+    /** Returns the number of bytes written since the start of the stream. */
     public long getByteCount() {
         return byteCount + bitBufferLen / 8;
     }
 
-
-    // Writes out any internally buffered bit data, closes the underlying output stream, and invalidates this
-    // bit output stream object for any future operation. Note that a BitOutputStream only uses memory but
-    // does not have native resources. It is okay to flush() the pending data and simply let a BitOutputStream
-    // be garbage collected without calling close(), but the parent is still responsible for calling close()
-    // on the underlying output stream if it uses native resources (such as FileOutputStream or SocketOutputStream).
+    /**
+     * Writes out any internally buffered bit data, closes the underlying output stream, and invalidates this
+     * bit output stream object for any future operation. Note that a BitOutputStream only uses memory but
+     * does not have native resources. It is okay to flush() the pending data and simply let a BitOutputStream
+     * be garbage collected without calling close(), but the parent is still responsible for calling close()
+     * on the underlying output stream if it uses native resources (such as FileOutputStream or SocketOutputStream).
+     */
     @Override
     public void close() throws IOException {
         if (out != null) {
@@ -171,5 +175,4 @@ public final class BitOutputStream implements AutoCloseable {
             out = null;
         }
     }
-
 }
