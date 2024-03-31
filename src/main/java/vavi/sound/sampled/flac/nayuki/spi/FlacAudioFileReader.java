@@ -11,7 +11,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.logging.Level;
@@ -62,8 +61,8 @@ public class FlacAudioFileReader extends AudioFileReader {
     /**
      * Return the AudioFileFormat from the given InputStream. Implementation.
      *
-     * @param bitStream
-     * @param mediaLength
+     * @param bitStream input to decode
+     * @param mediaLength unused
      * @return an AudioInputStream object based on the audio file data contained
      * in the input stream.
      * @throws UnsupportedAudioFileException if the File does not point to a valid audio file data
@@ -95,7 +94,7 @@ Debug.println(Level.FINER, "read overflow: " + (position + off) + " to " + len +
                     return LIMIT;
                 }
                 @Override public void seekTo(long pos) throws IOException {
-                    throw new UnsupportedEncodingException();
+                    throw new UnsupportedOperationException();
                 }
             });
             while (decoder.readAndHandleMetadataBlock() != null) {
@@ -114,7 +113,17 @@ Debug.println(Level.FINER, "read overflow: " + (position + off) + " to " + len +
                     AudioSystem.NOT_SPECIFIED,
                     AudioSystem.NOT_SPECIFIED,
                     false);
-        } catch (DataFormatException | EOFException e) {
+        } catch (IOException e) {
+            if (e instanceof EOFException) {
+Debug.println(Level.FINER, e);
+Debug.printStackTrace(Level.FINEST, e);
+                throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
+            } else {
+                throw e;
+            }
+        } catch (Exception e) {
+Debug.println(Level.FINER, e);
+Debug.printStackTrace(Level.FINEST, e);
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
         } finally {
             try {
@@ -149,7 +158,7 @@ Debug.println(Level.FINER, "finally available: " + bitStream.available());
      * must point to valid audio file data.
      *
      * @param inputStream the input stream from which the AudioInputStream should be constructed.
-     * @param mediaLength
+     * @param mediaLength unused
      * @return an AudioInputStream object based on the audio file data contained
      * in the input stream.
      * @throws UnsupportedAudioFileException if the File does not point to a valid audio file data
