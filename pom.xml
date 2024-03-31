@@ -3,7 +3,7 @@
 
   <groupId>com.github.nayuki</groupId>
   <artifactId>vavi-sound-flac-nayuki</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
 
   <properties>
     <vavi.test.volume>0.02</vavi.test.volume>
