@@ -7,14 +7,14 @@
 package vavi.sound.sampled.flac.nayuki.spi;
 
 import java.io.IOException;
-import java.util.logging.Level;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.spi.FormatConversionProvider;
 
-import io.nayuki.flac.decode.FlacDecoder;
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -24,6 +24,8 @@ import vavi.util.Debug;
  * @version 0.00 2023/10/09 umjammer initial version <br>
  */
 public class FlacFormatConversionProvider extends FormatConversionProvider {
+
+    private static final Logger logger = getLogger(FlacFormatConversionProvider.class.getName());
 
     /** to disable encoding */
     private static final boolean HAS_ENCODING = false;
@@ -90,14 +92,14 @@ public class FlacFormatConversionProvider extends FormatConversionProvider {
                 && !sourceFormat.isBigEndian()
                 && sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
             // encoder
-Debug.println(Level.FINER, "FLAC converter: can encode to PCM: " + sourceFormat);
+logger.log(Level.TRACE, "FLAC converter: can encode to PCM: " + sourceFormat);
             return new AudioFormat.Encoding[] { FlacEncoding.FLAC };
         } else if (bitSizeOK && channelsOK && sourceFormat.getEncoding().equals(FlacEncoding.FLAC)) {
             // decoder
-Debug.println(Level.FINER, "FLAC converter: can decode to FLAC: " + sourceFormat);
+logger.log(Level.TRACE, "FLAC converter: can decode to FLAC: " + sourceFormat);
             return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
         } else {
-Debug.println(Level.FINER, "FLAC converter: cannot de/encode: " + sourceFormat);
+logger.log(Level.TRACE, "FLAC converter: cannot de/encode: " + sourceFormat);
             return new AudioFormat.Encoding[] {};
         }
     }
@@ -136,7 +138,7 @@ Debug.println(Level.FINER, "FLAC converter: cannot de/encode: " + sourceFormat);
                 AudioFormat.Encoding.PCM_SIGNED)
                 && targetEncoding.equals(FlacEncoding.FLAC)) {
             // encode to FLAC
-Debug.println(Level.FINER, "FLAC converter: can encode: " + sourceFormat + " to " + targetEncoding);
+logger.log(Level.TRACE, "FLAC converter: can encode: " + sourceFormat + " to " + targetEncoding);
             return new AudioFormat[] {
                     new AudioFormat(FlacEncoding.FLAC,
                             sourceFormat.getSampleRate(), //
@@ -151,7 +153,7 @@ Debug.println(Level.FINER, "FLAC converter: can encode: " + sourceFormat + " to 
                 && sourceFormat.getEncoding().equals(FlacEncoding.FLAC)
                 && targetEncoding.equals(AudioFormat.Encoding.PCM_SIGNED)) {
             // decode to PCM
-Debug.println(Level.FINER, "FLAC converter: can decode: " + sourceFormat + " to " + targetEncoding);
+logger.log(Level.TRACE, "FLAC converter: can decode: " + sourceFormat + " to " + targetEncoding);
             return new AudioFormat[] {
                     new AudioFormat(sourceFormat.getSampleRate(), //
                             sourceFormat.getSampleSizeInBits(),   // sample size in bits
@@ -160,7 +162,7 @@ Debug.println(Level.FINER, "FLAC converter: can decode: " + sourceFormat + " to 
                             false)
             }; // little endian (for PCM wav)
         } else {
-Debug.println(Level.FINER, "FLAC converter: cannot de/encode: " + sourceFormat + " to " + targetEncoding);
+logger.log(Level.TRACE, "FLAC converter: cannot de/encode: " + sourceFormat + " to " + targetEncoding);
             return new AudioFormat[] {};
         }
     }

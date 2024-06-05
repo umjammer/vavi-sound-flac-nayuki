@@ -11,10 +11,10 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -26,7 +26,8 @@ import io.nayuki.flac.common.StreamInfo;
 import io.nayuki.flac.decode.AbstractFlacLowLevelInput;
 import io.nayuki.flac.decode.DataFormatException;
 import io.nayuki.flac.decode.FlacDecoder;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -37,7 +38,7 @@ import vavi.util.Debug;
  */
 public class FlacAudioFileReader extends AudioFileReader {
 
-    private static final Logger logger = Logger.getLogger(FlacAudioFileReader.class.getName());
+    private static final Logger logger = getLogger(FlacAudioFileReader.class.getName());
 
     @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
@@ -70,7 +71,7 @@ public class FlacAudioFileReader extends AudioFileReader {
      * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-Debug.println(Level.FINER, "enter available: " + bitStream.available());
+logger.log(Level.TRACE, "enter available: " + bitStream.available());
         if (!bitStream.markSupported()) {
             throw new IllegalArgumentException("must be mark supported");
         }
@@ -81,9 +82,9 @@ Debug.println(Level.FINER, "enter available: " + bitStream.available());
             FlacDecoder decoder = new FlacDecoder(new AbstractFlacLowLevelInput() {
                 int position;
                 @Override protected int readUnderlying(byte[] buf, int off, int len) throws IOException {
-Debug.println(Level.FINER, "read: position: "+ position + ", off: " + off + ", len: " + len);
+logger.log(Level.TRACE, "read: position: "+ position + ", off: " + off + ", len: " + len);
                     if (LIMIT - off < len || position + len > LIMIT) {
-Debug.println(Level.FINER, "read overflow: " + (position + off) + " to " + len + " / " + LIMIT);
+logger.log(Level.TRACE, "read overflow: " + (position + off) + " to " + len + " / " + LIMIT);
                         return -1;
                     }
                     int r = bitStream.read(buf, off, len);
@@ -115,23 +116,23 @@ Debug.println(Level.FINER, "read overflow: " + (position + off) + " to " + len +
                     false);
         } catch (IOException e) {
             if (e instanceof EOFException) {
-Debug.println(Level.FINER, e);
-Debug.printStackTrace(Level.FINEST, e);
+logger.log(Level.DEBUG, e);
+logger.log(Level.TRACE, e.getMessage(), e);
                 throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
             } else {
                 throw e;
             }
         } catch (Exception e) {
-Debug.println(Level.FINER, e);
-Debug.printStackTrace(Level.FINEST, e);
+logger.log(Level.DEBUG, e);
+logger.log(Level.TRACE, e.getMessage(), e);
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
         } finally {
             try {
                 bitStream.reset();
             } catch (IOException e) {
-                logger.info(e.getMessage());
+                logger.log(Level.INFO, e.getMessage());
             }
-Debug.println(Level.FINER, "finally available: " + bitStream.available());
+logger.log(Level.TRACE, "finally available: " + bitStream.available());
         }
         return new AudioFileFormat(FlacFileFormatType.FLAC, format, AudioSystem.NOT_SPECIFIED);
     }

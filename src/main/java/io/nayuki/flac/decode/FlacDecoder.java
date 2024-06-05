@@ -23,12 +23,15 @@ package io.nayuki.flac.decode;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 import io.nayuki.flac.common.FrameInfo;
 import io.nayuki.flac.common.SeekTable;
 import io.nayuki.flac.common.StreamInfo;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -61,7 +64,7 @@ import io.nayuki.flac.common.StreamInfo;
  */
 public final class FlacDecoder implements AutoCloseable {
 
-    private static final Logger logger = Logger.getLogger(FlacDecoder.class.getName());
+    private static final Logger logger = getLogger(FlacDecoder.class.getName());
 
     // Fields
 
@@ -123,7 +126,7 @@ public final class FlacDecoder implements AutoCloseable {
         int type = input.readUint(7);
         int length = input.readUint(24);
         byte[] data = new byte[length];
-        logger.finer("data type: " + type + ", length: " + length);
+logger.log(Level.TRACE, "data type: " + type + ", length: " + length);
         input.readFully(data);
 
         // Handle recognized block
