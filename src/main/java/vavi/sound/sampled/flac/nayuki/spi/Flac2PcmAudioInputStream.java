@@ -74,10 +74,10 @@ public class Flac2PcmAudioInputStream extends AudioInputStream {
         }
 
         /** */
-        private int bytesPerSample;
+        private final int bytesPerSample;
 
         /** PCM [ch][Hz*sec] */
-        private int[][] samples;
+        private final int[][] samples;
 
         /** samples index */
         private int index;

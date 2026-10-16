@@ -64,8 +64,6 @@ class FlacFormatConversionProviderTest {
     static final double volume;
 
     static {
-        System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod", "org\\.tritonus\\.share\\.TDebug#out");
-
         time = System.getProperty("vavi.test", "").equals("ide") ? 1000 * 1000 : 9 * 1000;
         volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
     }
@@ -115,7 +113,7 @@ Debug.println("OUT: " + outAudioFormat);
     }
 
     @Test
-    @DisplayName("as spi")
+    @DisplayName("via spi")
     void test1() throws Exception {
 
         Path path = Paths.get(flac);
@@ -213,5 +211,3 @@ if (!System.getProperty("vavi.test", "").equals("ide")) {
         clip.close();
     }
 }
-
-/* */

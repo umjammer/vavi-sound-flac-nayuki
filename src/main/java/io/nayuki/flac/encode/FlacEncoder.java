@@ -22,14 +22,17 @@
 package io.nayuki.flac.encode;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 import io.nayuki.flac.common.StreamInfo;
+
+import static java.lang.System.getLogger;
 
 
 public final class FlacEncoder {
 
-    private static final Logger logger = Logger.getLogger(FlacEncoder.class.getName());
+    private static final Logger logger = getLogger(FlacEncoder.class.getName());
 
     public FlacEncoder(StreamInfo info, int[][] samples, int blockSize, SubframeEncoder.SearchOptions opt, BitOutputStream out) throws IOException {
         info.minBlockSize = blockSize;
@@ -38,7 +41,7 @@ public final class FlacEncoder {
         info.maxFrameSize = 0;
 
         for (int i = 0, pos = 0; pos < samples[0].length; i++) {
-logger.finer(String.format("frame=%d  position=%d  %.2f%%%n", i, pos, 100.0 * pos / samples[0].length));
+logger.log(Level.TRACE, "frame=%d  position=%d  %.2f%%%n".formatted(i, pos, 100.0 * pos / samples[0].length));
             int n = Math.min(samples[0].length - pos, blockSize);
             long[][] subsamples = getRange(samples, pos, n);
             FrameEncoder enc = FrameEncoder.computeBest(pos, subsamples, info.sampleDepth, info.sampleRate, opt).encoder;
